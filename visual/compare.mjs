@@ -13,6 +13,7 @@ const URL = process.env.VISUAL_URL || "http://127.0.0.1:4173/";
 
 const TARGET = { width: 1223, height: 1286 };
 const COMPARE = { width: 305, height: 321 };
+const EXPECTED_REFERENCE_BASE64_LENGTH = 39696;
 
 const REGION_BANDS = [
   { name: "header", y0: 0, y1: 16 },
@@ -26,7 +27,29 @@ const REGION_BANDS = [
 
 await fsp.mkdir(OUTPUT_DIR, { recursive: true });
 
-const refB64 = (await fsp.readFile(path.join(VISUAL_DIR, "reference-305x321.jpg.b64"), "utf8")).trim();
+const partsDir = path.join(VISUAL_DIR, "reference-parts");
+const partNames = (await fsp.readdir(partsDir))
+  .filter((name) => /^\d+\.txt$/.test(name))
+  .sort();
+
+if (partNames.length !== 8) {
+  throw new Error(`Expected 8 visual reference parts, found ${partNames.length}`);
+}
+
+const refB64 = (
+  await Promise.all(
+    partNames.map(async (name) =>
+      (await fsp.readFile(path.join(partsDir, name), "utf8")).trim(),
+    ),
+  )
+).join("");
+
+if (refB64.length !== EXPECTED_REFERENCE_BASE64_LENGTH) {
+  throw new Error(
+    `Reference base64 length mismatch: expected ${EXPECTED_REFERENCE_BASE64_LENGTH}, got ${refB64.length}`,
+  );
+}
+
 const refJpg = path.join(OUTPUT_DIR, "reference-source.jpg");
 await fsp.writeFile(refJpg, Buffer.from(refB64, "base64"));
 
@@ -50,7 +73,7 @@ try {
   });
 
   const page = await context.newPage();
-  await page.goto(URL, { waitUntil: "networkidle", timeout: 60_000 });
+  await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.addStyleTag({
     content: `
       *, *::before, *::after {
@@ -62,9 +85,10 @@ try {
       html, body { overflow: hidden !important; }
     `,
   });
+
   await page.evaluate(async () => {
     if (document.fonts?.ready) await document.fonts.ready;
-    await Promise.all(
+    const imageWait = Promise.all(
       [...document.images].map(
         (img) =>
           img.complete
@@ -75,6 +99,10 @@ try {
               }),
       ),
     );
+    await Promise.race([
+      imageWait,
+      new Promise((resolve) => setTimeout(resolve, 10_000)),
+    ]);
   });
   await page.waitForTimeout(250);
 
@@ -98,7 +126,10 @@ try {
       img{display:block;width:${COMPARE.width}px;height:${COMPARE.height}px;object-fit:fill}
     </style></head><body><img id="target" src="data:${mime};base64,${data}"></body></html>`);
     await p.waitForFunction(() => document.querySelector("#target")?.complete === true);
-    await p.screenshot({ path: outPath, clip: { x: 0, y: 0, width: COMPARE.width, height: COMPARE.height } });
+    await p.screenshot({
+      path: outPath,
+      clip: { x: 0, y: 0, width: COMPARE.width, height: COMPARE.height },
+    });
     await p.close();
   }
 
@@ -111,20 +142,36 @@ try {
   const a = PNG.sync.read(fs.readFileSync(reference));
   const b = PNG.sync.read(fs.readFileSync(current));
   if (a.width !== b.width || a.height !== b.height) {
-    throw new Error(`Dimension mismatch: reference ${a.width}x${a.height}, current ${b.width}x${b.height}`);
+    throw new Error(
+      `Dimension mismatch: reference ${a.width}x${a.height}, current ${b.width}x${b.height}`,
+    );
   }
 
   const diff = new PNG({ width: a.width, height: a.height });
-  const mismatchPixels = pixelmatch(a.data, b.data, diff.data, a.width, a.height, {
-    threshold: 0.1,
-    includeAA: true,
-    alpha: 0.65,
-    diffColor: [255, 0, 70],
-    aaColor: [255, 210, 0],
-  });
+  const mismatchPixels = pixelmatch(
+    a.data,
+    b.data,
+    diff.data,
+    a.width,
+    a.height,
+    {
+      threshold: 0.1,
+      includeAA: true,
+      alpha: 0.65,
+      diffColor: [255, 0, 70],
+      aaColor: [255, 210, 0],
+    },
+  );
   fs.writeFileSync(path.join(OUTPUT_DIR, "diff.png"), PNG.sync.write(diff));
 
-  function meanAbsoluteRgbError(dataA, dataB, x0 = 0, y0 = 0, x1 = a.width, y1 = a.height) {
+  function meanAbsoluteRgbError(
+    dataA,
+    dataB,
+    x0 = 0,
+    y0 = 0,
+    x1 = a.width,
+    y1 = a.height,
+  ) {
     let sum = 0;
     let count = 0;
     for (let y = y0; y < y1; y++) {
@@ -139,7 +186,15 @@ try {
     return (sum / count / 255) * 100;
   }
 
-  function structuralLumaError(dataA, dataB, x0 = 0, y0 = 0, x1 = a.width, y1 = a.height, block = 4) {
+  function structuralLumaError(
+    dataA,
+    dataB,
+    x0 = 0,
+    y0 = 0,
+    x1 = a.width,
+    y1 = a.height,
+    block = 4,
+  ) {
     let total = 0;
     let blocks = 0;
     for (let by = y0; by < y1; by += block) {
@@ -152,8 +207,14 @@ try {
         for (let y = by; y < yy1; y++) {
           for (let x = bx; x < xx1; x++) {
             const i = (y * a.width + x) * 4;
-            la += 0.2126 * dataA[i] + 0.7152 * dataA[i + 1] + 0.0722 * dataA[i + 2];
-            lb += 0.2126 * dataB[i] + 0.7152 * dataB[i + 1] + 0.0722 * dataB[i + 2];
+            la +=
+              0.2126 * dataA[i] +
+              0.7152 * dataA[i + 1] +
+              0.0722 * dataA[i + 2];
+            lb +=
+              0.2126 * dataB[i] +
+              0.7152 * dataB[i + 1] +
+              0.0722 * dataB[i + 2];
             n++;
           }
         }
@@ -184,9 +245,29 @@ try {
     REGION_BANDS.map((r) => [
       r.name,
       {
-        pixelMismatchPercent: Number(regionPixelMismatch(r.y0, r.y1).toFixed(3)),
-        meanRgbErrorPercent: Number(meanAbsoluteRgbError(a.data, b.data, 0, r.y0, a.width, r.y1).toFixed(3)),
-        structuralLumaErrorPercent: Number(structuralLumaError(a.data, b.data, 0, r.y0, a.width, r.y1).toFixed(3)),
+        pixelMismatchPercent: Number(
+          regionPixelMismatch(r.y0, r.y1).toFixed(3),
+        ),
+        meanRgbErrorPercent: Number(
+          meanAbsoluteRgbError(
+            a.data,
+            b.data,
+            0,
+            r.y0,
+            a.width,
+            r.y1,
+          ).toFixed(3),
+        ),
+        structuralLumaErrorPercent: Number(
+          structuralLumaError(
+            a.data,
+            b.data,
+            0,
+            r.y0,
+            a.width,
+            r.y1,
+          ).toFixed(3),
+        ),
       },
     ]),
   );
@@ -196,6 +277,10 @@ try {
     url: URL,
     targetViewport: TARGET,
     comparisonSize: COMPARE,
+    reference: {
+      parts: partNames,
+      base64Length: refB64.length,
+    },
     methodology: {
       browser: "Chromium via Playwright 1.55.0",
       deviceScaleFactor: 1,
@@ -204,6 +289,7 @@ try {
       reducedMotion: true,
       animationsDisabled: true,
       externalImagesWaited: true,
+      imageWaitTimeoutMs: 10_000,
       pixelmatchThreshold: 0.1,
       structuralBlockSize: 4,
       note: "Full score includes photography differences. Structural luma score is a coarse block-average metric intended to be less sensitive to image-content mismatch.",
@@ -211,14 +297,23 @@ try {
     full: {
       mismatchPixels,
       totalPixels,
-      pixelMismatchPercent: Number(((mismatchPixels / totalPixels) * 100).toFixed(3)),
-      meanRgbErrorPercent: Number(meanAbsoluteRgbError(a.data, b.data).toFixed(3)),
-      structuralLumaErrorPercent: Number(structuralLumaError(a.data, b.data).toFixed(3)),
+      pixelMismatchPercent: Number(
+        ((mismatchPixels / totalPixels) * 100).toFixed(3),
+      ),
+      meanRgbErrorPercent: Number(
+        meanAbsoluteRgbError(a.data, b.data).toFixed(3),
+      ),
+      structuralLumaErrorPercent: Number(
+        structuralLumaError(a.data, b.data).toFixed(3),
+      ),
     },
     regions,
   };
 
-  await fsp.writeFile(path.join(OUTPUT_DIR, "metrics.json"), JSON.stringify(metrics, null, 2) + "\n");
+  await fsp.writeFile(
+    path.join(OUTPUT_DIR, "metrics.json"),
+    JSON.stringify(metrics, null, 2) + "\n",
+  );
   console.log(JSON.stringify(metrics, null, 2));
 } finally {
   await browser.close();
