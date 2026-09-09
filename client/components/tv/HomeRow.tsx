@@ -5,14 +5,14 @@ import ChannelCard from "./ChannelCard";
 
 export default function HomeRow({ row }: { row: TvHomeRow }) {
   return (
-    <section className="mx-auto w-full max-w-[1223px] px-5 pt-5 first:pt-3 sm:px-7">
-      <div className="mb-3 flex items-end justify-between gap-4">
-        <div>
-          <h2 className="text-[22px] font-semibold leading-none tracking-[-0.02em] text-white sm:text-[23px]">
-            {row.title}
-          </h2>
-          {row.subtitle ? <p className="mt-1.5 text-[11px] text-white/42">{row.subtitle}</p> : null}
-        </div>
+    <section
+      data-tv-home-row={row.id}
+      className="mx-auto w-full max-w-[1223px] px-5 pt-[18px] first:pt-[15px] sm:px-7"
+    >
+      <div className="mb-[10px] flex items-end justify-between gap-4">
+        <h2 className="text-[22px] font-semibold leading-none tracking-[-0.025em] text-white">
+          {row.title}
+        </h2>
       </div>
 
       <div className="scrollbar-none flex gap-[10px] overflow-x-auto pb-1 pr-1">
