@@ -25,7 +25,7 @@ export default function Header() {
       <div className="mx-auto flex h-full w-full max-w-[1223px] items-center px-7">
         <Link
           to="/"
-          className="mr-12 flex shrink-0 items-center gap-1.5 font-script text-[34px] leading-none text-[#f5e7df]"
+          className="ml-[6px] mr-[64px] flex shrink-0 items-center gap-1.5 font-script text-[34px] leading-none text-[#f5e7df]"
         >
           For You
           <Heart className="h-[20px] w-[20px] -rotate-6 text-[#ef6f7d]" strokeWidth={1.7} />
