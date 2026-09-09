@@ -12,9 +12,147 @@ import {
   Globe,
   Moon,
 } from "lucide-react";
-import Layout from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+
+const TRENDING = [
+  {
+    title: "Emily in Paris",
+    image:
+      "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "The Menu",
+    image:
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "Barbie",
+    image:
+      "https://images.unsplash.com/photo-1529245019870-59b249281fd3?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "The Talk Show Collection",
+    image:
+      "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "Dune",
+    image:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "The Bear",
+    image:
+      "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=700&q=85",
+  },
+];
+
+const CATEGORIES = [
+  {
+    label: "Movies",
+    description: "Big stories. Bigger feelings.",
+    icon: Clapperboard,
+    to: "/movies",
+    image:
+      "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    label: "US TV",
+    description: "Your favourite shows & networks.",
+    icon: Tv,
+    to: "/tv-shows",
+    image:
+      "https://images.unsplash.com/photo-1522083165195-3424ed129620?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    label: "Talk Shows",
+    description: "Real conversations. Brighter perspectives.",
+    icon: Mic,
+    to: "/talk-shows",
+    image:
+      "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    label: "Fashion & Lifestyle",
+    description: "Style. Inspiration. A more beautiful everyday.",
+    icon: Shirt,
+    to: "/lifestyle",
+    image:
+      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    label: "Cooking",
+    description: "Good food. Good mood.",
+    icon: UtensilsCrossed,
+    to: "/cooking",
+    image:
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    label: "Documentaries",
+    description: "Extraordinary people. Incredible real stories.",
+    icon: Globe,
+    to: "/documentaries",
+    image:
+      "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    label: "Arabic Content",
+    description: "Egyptian, Tunisian & more. Always home.",
+    icon: Moon,
+    to: "/arabic-content",
+    image:
+      "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?auto=format&fit=crop&w=700&q=85",
+  },
+];
+
+const CHANNELS = [
+  { name: "mbc", className: "bg-[#d2272f] text-white font-serif lowercase" },
+  { name: "ON", className: "bg-gradient-to-br from-[#f56a45] to-[#ef7a93] text-white" },
+  { name: "dmc", className: "bg-[#eee9f4] text-[#111] lowercase" },
+  { name: "الحياة", className: "bg-[#f4f0ed] text-[#b6252c]" },
+  { name: "الوطنية 1", className: "bg-[#f7f4f2] text-[#c11f2f]" },
+  { name: "الوطنية التونسية", className: "bg-[#f7f4f2] text-[#c11f2f]" },
+  { name: "دراما", className: "bg-[#f4f2f0] text-[#151515]" },
+];
+
+const CONTINUE_WATCHING = [
+  {
+    title: "The Devil Wears Prada",
+    progress: 65,
+    image:
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "MasterChef US",
+    progress: 40,
+    image:
+      "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "أحلام الفتيات",
+    progress: 80,
+    image:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "Planet Earth",
+    progress: 25,
+    image:
+      "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "Friends",
+    progress: 55,
+    image:
+      "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    title: "نبلي وشريهان",
+    progress: 15,
+    image:
+      "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?auto=format&fit=crop&w=700&q=85",
+  },
+];
 
 const SIDE_LINKS = [
   "Movies",
@@ -26,263 +164,189 @@ const SIDE_LINKS = [
   "And You",
 ];
 
-const TRENDING = [
-  { title: "Emily in Paris", from: "from-rose-500/70", to: "to-fuchsia-900" },
-  { title: "The Menu", from: "from-stone-500/70", to: "to-stone-900" },
-  { title: "Barbie", from: "from-pink-400/70", to: "to-pink-900" },
-  { title: "The Talk Show Collection", from: "from-violet-500/70", to: "to-indigo-950" },
-  { title: "Dune", from: "from-amber-600/70", to: "to-orange-950" },
-  { title: "The Bear", from: "from-red-600/70", to: "to-neutral-950" },
-];
-
-const CATEGORIES = [
-  {
-    label: "Movies",
-    description: "Big stories. Bigger feelings.",
-    icon: Clapperboard,
-    to: "/movies",
-  },
-  {
-    label: "US TV",
-    description: "Your favourite shows & networks.",
-    icon: Tv,
-    to: "/tv-shows",
-  },
-  {
-    label: "Talk Shows",
-    description: "Real conversations. Brighter perspectives.",
-    icon: Mic,
-    to: "/talk-shows",
-  },
-  {
-    label: "Fashion & Lifestyle",
-    description: "Style. Inspiration. A more beautiful everyday.",
-    icon: Shirt,
-    to: "/lifestyle",
-  },
-  {
-    label: "Cooking",
-    description: "Good food. Good mood.",
-    icon: UtensilsCrossed,
-    to: "/cooking",
-  },
-  {
-    label: "Documentaries",
-    description: "Extraordinary people. Incredible real stories.",
-    icon: Globe,
-    to: "/documentaries",
-  },
-  {
-    label: "Arabic Content",
-    description: "Egyptian, Tunisian & more. Always home.",
-    icon: Moon,
-    to: "/arabic-content",
-  },
-];
-
-const CHANNELS = ["MBC", "ON", "DMC", "Al Hayat", "El Watania", "Tunisia TV", "Drama"];
-
-const CONTINUE_WATCHING = [
-  { title: "The Devil Wears Prada", progress: 65, from: "from-red-800/70", to: "to-neutral-950" },
-  { title: "MasterChef US", progress: 40, from: "from-amber-500/70", to: "to-stone-950" },
-  { title: "Ahlam Al Fatayat", progress: 80, from: "from-fuchsia-700/70", to: "to-purple-950" },
-  { title: "Planet Earth", progress: 25, from: "from-sky-600/70", to: "to-slate-950" },
-  { title: "Friends", progress: 55, from: "from-indigo-500/70", to: "to-indigo-950" },
-  { title: "Nabli We Chrikha", progress: 15, from: "from-rose-600/70", to: "to-rose-950" },
-];
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="mb-2.5 text-[22px] font-semibold leading-none tracking-[-0.02em] text-white sm:text-[23px]">
+      {children}
+    </h2>
+  );
+}
 
 export default function Index() {
   return (
-    <Layout>
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute -left-32 top-0 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
-          <div className="absolute right-0 top-40 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
+    <LayoutShell>
+      <section className="relative h-[390px] overflow-hidden bg-[#130d0c] lg:h-[397px]">
+        <div className="absolute inset-0">
+          <div
+            className="absolute inset-y-0 right-0 w-[74%] bg-cover bg-center"
+            style={{
+              backgroundImage:
+                "url(https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1600&q=90)",
+              backgroundPosition: "center 38%",
+            }}
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#120d0c_0%,#120d0c_24%,rgba(18,13,12,.93)_31%,rgba(18,13,12,.48)_49%,rgba(18,13,12,.12)_67%,rgba(18,13,12,.42)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#090909] to-transparent" />
+          <div className="absolute inset-y-0 right-0 hidden w-[208px] border-l border-white/5 bg-[#160f10]/75 backdrop-blur-[2px] xl:block" />
         </div>
 
-        <div className="container grid grid-cols-1 gap-12 py-14 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-20">
-          <div>
-            <p className="font-display text-xl italic text-foreground/90 sm:text-2xl">
+        <div className="relative mx-auto h-full w-full max-w-[1248px] px-7">
+          <div className="flex h-full max-w-[430px] flex-col justify-center pb-5 pt-2">
+            <p className="font-display text-[28px] leading-none text-[#f8f1ec] sm:text-[31px]">
               Good evening,
             </p>
-            <h1 className="mt-1 font-display text-5xl italic leading-none text-primary sm:text-6xl md:text-7xl">
-              Beautiful{" "}
-              <Heart className="inline h-9 w-9 -translate-y-2 fill-primary text-primary sm:h-11 sm:w-11" />
-            </h1>
-            <p className="mt-6 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
-              A world of stories, places, flavours and people — all in one
-              place, just for you. Press play on what makes you happy.{" "}
-              <Heart className="inline h-3.5 w-3.5 fill-primary/70 text-primary/70" />
+            <div className="mt-2 flex items-start gap-2">
+              <h1 className="font-script text-[70px] leading-[0.9] text-[#f8a8ae] sm:text-[82px]">
+                Beautiful
+              </h1>
+              <Heart className="mt-2 h-8 w-8 -rotate-6 text-[#f18491]" strokeWidth={1.6} />
+            </div>
+            <p className="mt-5 max-w-[350px] text-[15px] leading-[1.6] text-white/78">
+              A world of stories, places, flavours and people — all in one place,
+              just for you.
+            </p>
+            <p className="mt-1 text-[15px] leading-[1.6] text-white/78">
+              Press play on what makes you happy. <Heart className="inline h-3.5 w-3.5 text-[#f8a8ae]" />
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Button
-                size="lg"
-                className="gap-2 rounded-full px-6 shadow-lg shadow-primary/30"
-              >
+            <div className="mt-6 flex items-center gap-4">
+              <button className="flex h-[43px] items-center gap-2 rounded-full bg-[#f79ca7] px-6 text-[14px] font-semibold text-[#1a1110] shadow-[0_7px_30px_rgba(247,156,167,.18)] transition hover:bg-[#f6acb4]">
                 <Play className="h-4 w-4 fill-current" />
                 Play Something for Me
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="gap-2 rounded-full border-white/25 bg-transparent px-6 text-foreground hover:bg-white/10 hover:text-foreground"
+              </button>
+              <Link
+                to="/watchlist"
+                className="flex h-[43px] items-center gap-2 rounded-full border border-white/45 bg-black/20 px-6 text-[14px] font-medium text-white backdrop-blur-sm transition hover:bg-white/10"
               >
-                <Link to="/watchlist">
-                  <Bookmark className="h-4 w-4" />
-                  My Watchlist
-                </Link>
-              </Button>
+                <Bookmark className="h-4 w-4" />
+                My Watchlist
+              </Link>
             </div>
           </div>
 
-          <div className="relative flex items-center gap-6">
-            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-950 via-slate-900 to-rose-950 shadow-2xl">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_100%,rgba(255,255,255,0.12),transparent_55%)]" />
-              <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-1.5 pb-4">
-                {Array.from({ length: 24 }).map((_, i) => (
-                  <span
-                    key={i}
-                    className="h-6 w-1 rounded-full bg-amber-200/70"
-                    style={{
-                      height: `${8 + ((i * 7) % 26)}px`,
-                      opacity: 0.4 + ((i % 5) * 0.12),
-                    }}
-                  />
-                ))}
-              </div>
-              <p className="absolute right-6 top-6 text-right font-display text-xl italic leading-snug text-white/90 sm:text-2xl">
-                Same girl
-                <br />
-                Bigger stories <Heart className="inline h-4 w-4 fill-white/80 text-white/80" />
-              </p>
-            </div>
+          <p className="absolute right-[250px] top-[56px] hidden rotate-[-4deg] text-right font-script text-[27px] leading-[1.02] text-[#e8d7eb]/90 lg:block">
+            Same girl
+            <br />
+            Bigger stories <Heart className="inline h-5 w-5 text-[#e78ea4]" />
+          </p>
 
-            <ul className="hidden shrink-0 flex-col gap-3 text-right text-xs font-semibold uppercase tracking-widest text-muted-foreground xl:flex">
+          <div className="absolute right-7 top-7 hidden w-[165px] xl:block">
+            <ul className="space-y-3 text-[9px] font-semibold uppercase tracking-[0.22em] text-white/55">
               {SIDE_LINKS.map((label) => (
-                <li key={label} className="flex items-center justify-end gap-1.5">
+                <li key={label} className="flex items-center gap-1.5">
                   {label}
-                  {label === "And You" && (
-                    <Heart className="h-3 w-3 fill-primary text-primary" />
-                  )}
+                  {label === "And You" && <Heart className="h-3 w-3 text-[#e98998]" />}
                 </li>
               ))}
             </ul>
+            <div className="mt-6 h-[128px] rounded-sm bg-[radial-gradient(circle_at_50%_100%,rgba(224,180,128,.24),transparent_62%)]" />
           </div>
         </div>
       </section>
 
-      {/* Trending */}
-      <section className="container py-10">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-display text-2xl font-semibold text-foreground">
-            Trending for You
-          </h2>
-          <button className="text-muted-foreground transition-colors hover:text-foreground">
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="scrollbar-none flex gap-4 overflow-x-auto pb-2">
-          {TRENDING.map((item) => (
-            <div
-              key={item.title}
-              className={cn(
-                "group relative flex h-40 w-64 shrink-0 items-end overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br p-4 shadow-lg transition-transform hover:-translate-y-1",
-                item.from,
-                item.to,
-              )}
-            >
-              <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/0" />
-              <p className="relative font-display text-lg font-semibold text-white drop-shadow-sm">
-                {item.title}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Explore Your World */}
-      <section className="container py-10">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-display text-2xl font-semibold text-foreground">
-            Explore Your World
-          </h2>
-          <button className="text-muted-foreground transition-colors hover:text-foreground">
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-          {CATEGORIES.map(({ label, description, icon: Icon, to }) => (
-            <Link
-              key={label}
-              to={to}
-              className="group flex flex-col justify-between gap-6 rounded-2xl border border-white/10 bg-card p-4 transition-colors hover:border-primary/40 hover:bg-white/5"
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-primary">
-                <Icon className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="font-medium text-foreground">{label}</p>
-                <p className="mt-1 text-xs leading-snug text-muted-foreground">
-                  {description}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Popular Arabic Channels */}
-      <section className="container py-10">
-        <h2 className="mb-5 font-display text-2xl font-semibold text-foreground">
-          Popular Arabic Channels
-        </h2>
-        <div className="scrollbar-none flex gap-4 overflow-x-auto pb-2">
-          {CHANNELS.map((name) => (
-            <div
-              key={name}
-              className="flex h-16 w-40 shrink-0 items-center justify-center rounded-xl bg-foreground/95 px-4 text-center font-display text-lg font-bold tracking-wide text-background shadow-md"
-            >
-              {name}
-            </div>
-          ))}
-          <button className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-white/10 text-muted-foreground transition-colors hover:text-foreground">
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-      </section>
-
-      {/* Continue Watching */}
-      <section className="container py-10">
-        <h2 className="mb-5 font-display text-2xl font-semibold text-foreground">
-          Continue Watching
-        </h2>
-        <div className="scrollbar-none flex gap-4 overflow-x-auto pb-2">
-          {CONTINUE_WATCHING.map((item) => (
-            <div key={item.title} className="w-44 shrink-0">
-              <div
-                className={cn(
-                  "relative h-28 w-44 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br shadow-lg",
-                  item.from,
-                  item.to,
-                )}
+      <main className="bg-[#090909] pb-2 pt-2">
+        <section className="mx-auto w-full max-w-[1248px] px-7 pt-1">
+          <SectionTitle>Trending for You</SectionTitle>
+          <div className="scrollbar-none flex gap-[10px] overflow-x-auto pb-1">
+            {TRENDING.map((item) => (
+              <article
+                key={item.title}
+                className="group relative h-[132px] w-[188px] shrink-0 overflow-hidden rounded-[4px] bg-[#171212]"
               >
-                <div className="absolute bottom-0 left-0 h-1 w-full bg-white/20">
-                  <div
-                    className="h-full bg-primary"
-                    style={{ width: `${item.progress}%` }}
-                  />
+                <img
+                  src={item.image}
+                  alt=""
+                  className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+                <p className="absolute bottom-3 left-3 right-3 text-[16px] font-semibold leading-tight text-white drop-shadow-md">
+                  {item.title}
+                </p>
+              </article>
+            ))}
+            <button className="flex h-[132px] w-7 shrink-0 items-center justify-center text-white/80">
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-[1248px] px-7 pt-[17px]">
+          <SectionTitle>Explore Your World</SectionTitle>
+          <div className="scrollbar-none flex gap-[10px] overflow-x-auto pb-1">
+            {CATEGORIES.map(({ label, description, icon: Icon, to, image }) => (
+              <Link
+                key={label}
+                to={to}
+                className="group relative h-[176px] w-[159px] shrink-0 overflow-hidden rounded-[4px] border border-white/[0.04] bg-[#171212]"
+              >
+                <img
+                  src={image}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/34 to-black/5" />
+                <div className="absolute bottom-3 left-3 right-2">
+                  <span className="mb-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <p className="text-[14px] font-semibold leading-tight text-white">{label}</p>
+                  <p className="mt-1 text-[10.5px] leading-[1.38] text-white/72">{description}</p>
                 </div>
+              </Link>
+            ))}
+            <button className="flex h-[176px] w-7 shrink-0 items-center justify-center text-white/80">
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-[1248px] px-7 pt-[18px]">
+          <SectionTitle>Popular Arabic Channels</SectionTitle>
+          <div className="scrollbar-none flex gap-[10px] overflow-x-auto pb-1">
+            {CHANNELS.map((channel) => (
+              <div
+                key={channel.name}
+                className={`flex h-[69px] w-[161px] shrink-0 items-center justify-center rounded-[4px] px-3 text-center text-[24px] font-bold shadow-sm ${channel.className}`}
+              >
+                {channel.name}
               </div>
-              <p className="mt-2 truncate text-sm font-medium text-foreground">
-                {item.title}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </Layout>
+            ))}
+            <button className="flex h-[69px] w-7 shrink-0 items-center justify-center text-white/80">
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-[1248px] px-7 pt-[18px]">
+          <SectionTitle>Continue Watching</SectionTitle>
+          <div className="scrollbar-none flex gap-[10px] overflow-x-auto pb-1">
+            {CONTINUE_WATCHING.map((item) => (
+              <article key={item.title} className="w-[188px] shrink-0">
+                <div className="relative h-[121px] overflow-hidden rounded-[4px] bg-[#171212]">
+                  <img src={item.image} alt="" className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-black/5 to-transparent" />
+                  <p className="absolute bottom-[14px] left-3 right-3 truncate text-[12px] font-medium text-white">
+                    {item.title}
+                  </p>
+                  <div className="absolute bottom-[5px] left-3 right-3 h-[3px] rounded-full bg-white/22">
+                    <div
+                      className="h-full rounded-full bg-[#f26f83]"
+                      style={{ width: `${item.progress}%` }}
+                    />
+                  </div>
+                </div>
+              </article>
+            ))}
+            <button className="flex h-[121px] w-7 shrink-0 items-center justify-center text-white/80">
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        </section>
+      </main>
+    </LayoutShell>
   );
+}
+
+function LayoutShell({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }
