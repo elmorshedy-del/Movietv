@@ -3,7 +3,7 @@ name: Product CI
 on:
   workflow_dispatch:
   push:
-    branches: [main, live-tv-product]
+    branches: [main, live-tv-product, visual-restoration]
     paths:
       - "client/**"
       - "server/**"
