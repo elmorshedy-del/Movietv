@@ -1,0 +1,88 @@
+name: Visual Match
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "client/**"
+      - "visual/**"
+      - "index.html"
+      - "vite.config.ts"
+      - "tailwind.config.ts"
+      - ".github/workflows/visual-match.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  compare-homepage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install app dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install visual tool dependencies
+        working-directory: visual
+        run: npm install --no-audit --no-fund
+
+      - name: Install fixed Chromium
+        working-directory: visual
+        run: npx playwright install --with-deps chromium
+
+      - name: Build client
+        run: pnpm build:client
+
+      - name: Start deterministic preview
+        run: |
+          nohup pnpm exec vite preview --host 127.0.0.1 --port 4173 --strictPort > /tmp/movietv-vite.log 2>&1 &
+          for i in {1..40}; do
+            if curl --silent --fail http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 0.5
+          done
+          cat /tmp/movietv-vite.log
+          exit 1
+
+      - name: Render and compare
+        env:
+          VISUAL_URL: http://127.0.0.1:4173/
+        run: node visual/compare.mjs
+
+      - name: Write score summary
+        if: always()
+        run: |
+          if [ -f visual/output/metrics.json ]; then
+            echo "## MovieTV visual match" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat visual/output/metrics.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload visual artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: movietv-visual-match
+          path: |
+            visual/output/current-full.png
+            visual/output/current.png
+            visual/output/reference.png
+            visual/output/diff.png
+            visual/output/metrics.json
+          if-no-files-found: warn
+          retention-days: 30
