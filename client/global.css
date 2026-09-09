@@ -109,3 +109,35 @@
     white-space: pre;
   }
 }
+
+/*
+ * Desktop reference calibration.
+ * These values come from the deterministic 1223 × 1286 comparison run,
+ * not from visual guessing. They only affect wide layouts around the
+ * reference viewport and leave the mobile/tablet behavior unchanged.
+ */
+@media (min-width: 1100px) {
+  /* Tailwind's default xl breakpoint is 1280px, but the reference is 1223px. */
+  main.flex-1 > section:first-child > div.absolute > div:last-child,
+  main.flex-1 > section:first-child > div.relative > div:last-child {
+    display: block !important;
+  }
+
+  /* The hero copy begins about 22px farther right than the content rows. */
+  main.flex-1 > section:first-child > div.relative > div:first-child {
+    margin-left: 22px;
+  }
+
+  /* Measured cumulative vertical offsets from the first rendered baseline. */
+  main.flex-1 > main > section:nth-child(2) {
+    padding-top: 23px !important;
+  }
+
+  main.flex-1 > main > section:nth-child(3) {
+    padding-top: 25px !important;
+  }
+
+  main.flex-1 > main > section:nth-child(4) {
+    padding-top: 24px !important;
+  }
+}
