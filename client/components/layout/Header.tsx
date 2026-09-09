@@ -21,17 +21,17 @@ export default function Header() {
   const { pathname } = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
-      <div className="container flex h-20 items-center justify-between gap-6">
+    <header className="sticky top-0 z-50 h-[63px] border-b border-white/[0.035] bg-[#100b0c]/95 backdrop-blur-md">
+      <div className="mx-auto flex h-full w-full max-w-[1248px] items-center px-7">
         <Link
           to="/"
-          className="flex shrink-0 items-center gap-1.5 font-display text-2xl font-semibold tracking-tight text-foreground"
+          className="mr-12 flex shrink-0 items-center gap-1.5 font-script text-[34px] leading-none text-[#f5e7df]"
         >
           For You
-          <Heart className="h-4 w-4 fill-primary text-primary" />
+          <Heart className="h-[20px] w-[20px] -rotate-6 text-[#ef6f7d]" strokeWidth={1.7} />
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden h-full flex-1 items-center gap-3 lg:flex">
           {NAV_LINKS.map((link) => {
             const active = pathname === link.to;
             return (
@@ -39,8 +39,9 @@ export default function Header() {
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "text-sm font-medium tracking-wide text-muted-foreground transition-colors hover:text-foreground",
-                  active && "text-foreground",
+                  "flex h-[31px] items-center rounded-[4px] px-4 text-[12px] font-medium text-white/78 transition-colors hover:bg-white/[0.05] hover:text-white",
+                  active &&
+                    "border-b-2 border-[#f47f8c] bg-white/[0.075] text-white shadow-[0_6px_16px_rgba(0,0,0,.18)]",
                 )}
               >
                 {link.label}
@@ -49,25 +50,28 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-5">
+        <div className="ml-auto flex h-full shrink-0 items-center">
           <button
             type="button"
             aria-label="Search"
-            className="text-foreground/80 transition-colors hover:text-foreground"
+            className="flex h-full w-[55px] items-center justify-center border-l border-white/[0.04] text-white/90 transition-colors hover:bg-white/[0.04]"
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-[22px] w-[22px]" strokeWidth={1.7} />
           </button>
+
           <Link
             to="/profile"
-            className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors hover:bg-white/5"
+            className="flex h-full items-center gap-2.5 border-l border-white/[0.04] pl-4 pr-1 transition-colors hover:bg-white/[0.035]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-xs font-semibold text-primary-foreground">
-              MG
-            </span>
-            <span className="hidden text-sm font-medium text-foreground sm:inline">
+            <img
+              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=85"
+              alt=""
+              className="h-9 w-9 rounded-full object-cover ring-1 ring-white/15"
+            />
+            <span className="hidden text-[12px] font-semibold text-white sm:inline">
               My Girl
             </span>
-            <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:inline" />
+            <ChevronDown className="hidden h-4 w-4 text-white/65 sm:inline" />
           </Link>
 
           <Sheet>
@@ -75,16 +79,13 @@ export default function Header() {
               <button
                 type="button"
                 aria-label="Open menu"
-                className="text-foreground/80 transition-colors hover:text-foreground lg:hidden"
+                className="ml-2 flex h-10 w-10 items-center justify-center text-white/80 lg:hidden"
               >
                 <Menu className="h-5 w-5" />
               </button>
             </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-64 border-white/10 bg-background"
-            >
-              <nav className="mt-10 flex flex-col gap-6">
+            <SheetContent side="right" className="w-64 border-white/10 bg-[#100b0c]">
+              <nav className="mt-10 flex flex-col gap-5">
                 {NAV_LINKS.map((link) => {
                   const active = pathname === link.to;
                   return (
@@ -92,8 +93,8 @@ export default function Header() {
                       key={link.to}
                       to={link.to}
                       className={cn(
-                        "text-base font-medium text-muted-foreground transition-colors hover:text-foreground",
-                        active && "text-foreground",
+                        "text-base font-medium text-white/60 transition-colors hover:text-white",
+                        active && "text-white",
                       )}
                     >
                       {link.label}
