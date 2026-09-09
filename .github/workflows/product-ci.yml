@@ -1,0 +1,79 @@
+name: Product CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, live-tv-product]
+    paths:
+      - "client/**"
+      - "server/**"
+      - "shared/**"
+      - "netlify/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "vite.config.ts"
+      - ".github/workflows/product-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test
+      - name: Production build
+        run: pnpm build
+
+  iptv-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Start app with API middleware
+        run: |
+          nohup pnpm exec vite --host 127.0.0.1 --port 4173 --strictPort > /tmp/movietv.log 2>&1 &
+          for i in {1..40}; do
+            if curl --silent --fail http://127.0.0.1:4173/api/ping > /dev/null; then exit 0; fi
+            sleep 0.5
+          done
+          cat /tmp/movietv.log
+          exit 1
+      - name: Resolve curated catalog and mint one playback source
+        run: |
+          curl --silent --fail http://127.0.0.1:4173/api/tv/home > /tmp/home.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const home = JSON.parse(fs.readFileSync('/tmp/home.json', 'utf8'));
+          if (!home.ok) throw new Error('home API not ok');
+          const live = home.rows.filter(r => r.kind === 'channels').flatMap(r => r.items || []);
+          if (live.length < 5) throw new Error(`too few curated channels resolved: ${live.length}`);
+          const first = live[0];
+          fs.writeFileSync('/tmp/channel-id.txt', first.id);
+          console.log(`resolved ${live.length} home channels; testing ${first.id}`);
+          NODE
+          CHANNEL_ID=$(cat /tmp/channel-id.txt)
+          curl --silent --fail "http://127.0.0.1:4173/api/tv/channel/${CHANNEL_ID}" > /tmp/playback.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const data = JSON.parse(fs.readFileSync('/tmp/playback.json', 'utf8'));
+          if (!data.ok || (!data.playbackUrl && !data.tsPlaybackUrl)) {
+            throw new Error('playback API did not return a playable source');
+          }
+          console.log(`playback source ok for ${data.channel.label}`);
+          NODE
