@@ -5,13 +5,27 @@ import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Layout from "@/components/layout/Layout";
+import PlaceholderPage from "@/components/placeholder/PlaceholderPage";
+import Browse from "./pages/Browse";
+import Favorites from "./pages/Favorites";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import PlaceholderPage from "@/components/placeholder/PlaceholderPage";
-import Layout from "@/components/layout/Layout";
+import Watch from "./pages/Watch";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
+function Page({ children }: { children: React.ReactNode }) {
+  return <Layout>{children}</Layout>;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -20,101 +34,28 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <Layout>
-                <Index />
-              </Layout>
-            }
-          />
-          <Route
-            path="/movies"
-            element={
-              <PlaceholderPage
-                title="Movies"
-                description="Big stories, bigger feelings — your movie hub is coming soon."
-              />
-            }
-          />
-          <Route
-            path="/tv-shows"
-            element={
-              <PlaceholderPage
-                title="TV Shows"
-                description="Your favourite shows and networks, all in one place soon."
-              />
-            }
-          />
-          <Route
-            path="/live-tv"
-            element={
-              <PlaceholderPage
-                title="Live TV"
-                description="Live channels are almost ready to stream."
-              />
-            }
-          />
-          <Route
-            path="/lifestyle"
-            element={
-              <PlaceholderPage
-                title="Fashion & Lifestyle"
-                description="Style inspiration for a more beautiful everyday, coming soon."
-              />
-            }
-          />
-          <Route
-            path="/cooking"
-            element={
-              <PlaceholderPage
-                title="Cooking"
-                description="Good food, good mood — recipes and shows coming soon."
-              />
-            }
-          />
-          <Route
-            path="/documentaries"
-            element={
-              <PlaceholderPage
-                title="Documentaries"
-                description="Extraordinary people and incredible real stories, coming soon."
-              />
-            }
-          />
-          <Route
-            path="/talk-shows"
-            element={
-              <PlaceholderPage
-                title="Talk Shows"
-                description="Real conversations, brighter perspectives — coming soon."
-              />
-            }
-          />
-          <Route
-            path="/arabic-content"
-            element={
-              <PlaceholderPage
-                title="Arabic Content"
-                description="Egyptian, Tunisian and more — always home. Coming soon."
-              />
-            }
-          />
-          <Route
-            path="/watchlist"
-            element={
-              <PlaceholderPage
-                title="My Watchlist"
-                description="Everything you save to watch later will live here."
-              />
-            }
-          />
+          <Route path="/" element={<Page><Index /></Page>} />
+          <Route path="/browse/:sectionId" element={<Page><Browse /></Page>} />
+          <Route path="/watch/:channelId" element={<Page><Watch /></Page>} />
+          <Route path="/favorites" element={<Page><Favorites /></Page>} />
+
+          {/* Compatibility redirects from the Builder prototype. */}
+          <Route path="/movies" element={<Navigate to="/browse/movies" replace />} />
+          <Route path="/tv-shows" element={<Navigate to="/browse/us-tv" replace />} />
+          <Route path="/live-tv" element={<Navigate to="/browse/all" replace />} />
+          <Route path="/lifestyle" element={<Navigate to="/browse/lifestyle" replace />} />
+          <Route path="/cooking" element={<Navigate to="/browse/lifestyle" replace />} />
+          <Route path="/documentaries" element={<Navigate to="/browse/discover" replace />} />
+          <Route path="/talk-shows" element={<Navigate to="/browse/us-tv" replace />} />
+          <Route path="/arabic-content" element={<Navigate to="/browse/arabic" replace />} />
+          <Route path="/watchlist" element={<Navigate to="/favorites" replace />} />
+
           <Route
             path="/profile"
             element={
               <PlaceholderPage
                 title="My Girl"
-                description="Your profile and preferences are coming soon."
+                description="Your profile and preferences will live here."
               />
             }
           />
