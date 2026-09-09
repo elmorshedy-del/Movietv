@@ -37,11 +37,14 @@ export interface TvHeroContent {
   sideLinks: Array<{ label: string; to: string }>;
 }
 
+export type TvChannelRowPresentation = "tile" | "logo-strip";
+
 export interface TvChannelRow {
   id: string;
   title: string;
   subtitle?: string;
   kind: "channels";
+  presentation?: TvChannelRowPresentation;
   items: TvChannelSummary[];
 }
 
