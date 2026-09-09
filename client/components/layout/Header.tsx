@@ -9,13 +9,17 @@ import {
 
 const NAV_LINKS = [
   { label: "Home", to: "/" },
-  { label: "Movies", to: "/movies" },
-  { label: "TV Shows", to: "/tv-shows" },
-  { label: "Live TV", to: "/live-tv" },
-  { label: "Lifestyle", to: "/lifestyle" },
-  { label: "Cooking", to: "/cooking" },
-  { label: "Documentaries", to: "/documentaries" },
+  { label: "Premium", to: "/browse/premium" },
+  { label: "Movies", to: "/browse/movies" },
+  { label: "US TV", to: "/browse/us-tv" },
+  { label: "Lifestyle", to: "/browse/lifestyle" },
+  { label: "Arabic", to: "/browse/arabic" },
 ];
+
+function isActive(pathname: string, to: string) {
+  if (to === "/") return pathname === "/";
+  return pathname === to || pathname.startsWith(`${to}/`);
+}
 
 export default function Header() {
   const { pathname } = useLocation();
@@ -25,21 +29,21 @@ export default function Header() {
       <div className="mx-auto flex h-full w-full max-w-[1223px] items-center px-7">
         <Link
           to="/"
-          className="ml-[6px] mr-[64px] flex shrink-0 items-center gap-1.5 font-script text-[34px] leading-none text-[#f5e7df]"
+          className="ml-[6px] mr-[52px] flex shrink-0 items-center gap-1.5 font-script text-[34px] leading-none text-[#f5e7df]"
         >
           For You
           <Heart className="h-[20px] w-[20px] -rotate-6 text-[#ef6f7d]" strokeWidth={1.7} />
         </Link>
 
-        <nav className="hidden h-full flex-1 items-center gap-3 lg:flex">
+        <nav className="hidden h-full flex-1 items-center gap-2 lg:flex">
           {NAV_LINKS.map((link) => {
-            const active = pathname === link.to;
+            const active = isActive(pathname, link.to);
             return (
               <Link
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "flex h-[31px] items-center rounded-[4px] px-4 text-[12px] font-medium text-white/[0.78] transition-colors hover:bg-white/[0.05] hover:text-white",
+                  "flex h-[31px] items-center rounded-[4px] px-3.5 text-[12px] font-medium text-white/[0.72] transition-colors hover:bg-white/[0.05] hover:text-white",
                   active &&
                     "border-b-2 border-[#f47f8c] bg-white/[0.075] text-white shadow-[0_6px_16px_rgba(0,0,0,.18)]",
                 )}
@@ -51,13 +55,13 @@ export default function Header() {
         </nav>
 
         <div className="ml-auto flex h-full shrink-0 items-center">
-          <button
-            type="button"
-            aria-label="Search"
+          <Link
+            to="/browse/all"
+            aria-label="Search channels"
             className="flex h-full w-[55px] items-center justify-center border-l border-white/[0.04] text-white/90 transition-colors hover:bg-white/[0.04]"
           >
-            <Search className="h-[22px] w-[22px]" strokeWidth={1.7} />
-          </button>
+            <Search className="h-[21px] w-[21px]" strokeWidth={1.7} />
+          </Link>
 
           <Link
             to="/profile"
@@ -85,7 +89,7 @@ export default function Header() {
             <SheetContent side="right" className="w-64 border-white/10 bg-[#100b0c]">
               <nav className="mt-10 flex flex-col gap-5">
                 {NAV_LINKS.map((link) => {
-                  const active = pathname === link.to;
+                  const active = isActive(pathname, link.to);
                   return (
                     <Link
                       key={link.to}
@@ -99,6 +103,9 @@ export default function Header() {
                     </Link>
                   );
                 })}
+                <Link to="/favorites" className="text-base font-medium text-[#ee929e]">
+                  My Favorites
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>
