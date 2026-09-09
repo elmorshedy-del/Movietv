@@ -21,8 +21,8 @@ export default function Header() {
   const { pathname } = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 h-[63px] border-b border-white/[0.035] bg-[#100b0c]/95 backdrop-blur-md">
-      <div className="mx-auto flex h-full w-full max-w-[1248px] items-center px-7">
+    <header className="sticky top-0 z-50 h-[62px] border-b border-white/[0.035] bg-[#100b0c]/95 backdrop-blur-md">
+      <div className="mx-auto flex h-full w-full max-w-[1223px] items-center px-7">
         <Link
           to="/"
           className="mr-12 flex shrink-0 items-center gap-1.5 font-script text-[34px] leading-none text-[#f5e7df]"
@@ -68,9 +68,7 @@ export default function Header() {
               alt=""
               className="h-9 w-9 rounded-full object-cover ring-1 ring-white/15"
             />
-            <span className="hidden text-[12px] font-semibold text-white sm:inline">
-              My Girl
-            </span>
+            <span className="hidden text-[12px] font-semibold text-white sm:inline">My Girl</span>
             <ChevronDown className="hidden h-4 w-4 text-white/65 sm:inline" />
           </Link>
 
