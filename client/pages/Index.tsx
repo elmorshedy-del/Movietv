@@ -88,17 +88,17 @@ export default function Index() {
       <section className="relative min-h-[390px] overflow-hidden bg-[#130d0c] lg:h-[397px]">
         <div className="absolute inset-0">
           <div
-            className="absolute inset-y-0 right-0 w-[76%] bg-cover bg-center saturate-[.78] sepia-[.16] brightness-[.64]"
+            className="absolute inset-y-0 right-0 w-[78%] bg-cover saturate-[.72] sepia-[.2] brightness-[.58]"
             style={{
               backgroundImage:
-                "url(https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1700&q=90)",
-              backgroundPosition: "center 36%",
+                "url(https://images.unsplash.com/photo-1570728605336-36ccd881d09f?auto=format&fit=crop&w=1700&q=88)",
+              backgroundPosition: "center 48%",
             }}
           />
-          <div className="absolute inset-y-0 right-0 w-[58%] bg-[radial-gradient(circle_at_64%_34%,rgba(58,74,148,.34),transparent_36%),radial-gradient(circle_at_74%_68%,rgba(245,170,84,.16),transparent_28%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,#120d0c_0%,#120d0c_25%,rgba(18,13,12,.95)_32%,rgba(18,13,12,.48)_50%,rgba(18,13,12,.12)_69%,rgba(18,13,12,.46)_100%)]" />
+          <div className="absolute inset-y-0 right-0 w-[60%] bg-[radial-gradient(circle_at_66%_28%,rgba(79,91,154,.28),transparent_38%),radial-gradient(circle_at_77%_72%,rgba(238,164,91,.18),transparent_31%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#120d0c_0%,#120d0c_25%,rgba(18,13,12,.94)_33%,rgba(18,13,12,.48)_51%,rgba(18,13,12,.11)_69%,rgba(18,13,12,.50)_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#090909] via-[#090909]/48 to-transparent" />
-          <div className="absolute inset-y-0 right-0 hidden w-[205px] border-l border-white/[0.045] bg-[#160f10]/72 backdrop-blur-[2px] xl:block" />
+          <div className="absolute inset-y-0 right-0 hidden w-[205px] border-l border-white/[0.045] bg-[#160f10]/72 backdrop-blur-[2px] lg:block" />
         </div>
 
         <div className="relative mx-auto h-full min-h-[390px] w-full max-w-[1223px] px-7 lg:min-h-0">
@@ -111,7 +111,7 @@ export default function Index() {
             <p className="mt-5 max-w-[380px] text-[15px] leading-[1.62] text-white/[0.78]">{hero.copy}</p>
             <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-white/[0.55]">
               <Sparkles className="h-3.5 w-3.5 text-[#f4a2ad]" />
-              No menus to figure out. Just pick a mood and press play.
+              Pick a mood, or let me choose for you.
             </p>
 
             <div className="mt-6 flex flex-wrap items-center gap-4">
@@ -139,7 +139,7 @@ export default function Index() {
             made for you <Heart className="inline h-5 w-5 text-[#e78ea4]" />
           </p>
 
-          <nav className="absolute right-7 top-7 hidden w-[164px] xl:block" aria-label="Featured TV sections">
+          <nav className="absolute right-7 top-7 hidden w-[164px] lg:block" aria-label="Featured TV sections">
             <ul className="space-y-[11px] text-[9px] font-semibold uppercase tracking-[0.19em] text-white/[0.55]">
               {hero.sideLinks.map((item) => (
                 <li key={`${item.label}-${item.to}`}>
