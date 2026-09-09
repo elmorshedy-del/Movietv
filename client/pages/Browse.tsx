@@ -27,18 +27,18 @@ export default function Browse() {
   return (
     <main className="min-h-[72vh] bg-[#090909] pb-16">
       <section className="border-b border-white/[0.04] bg-[radial-gradient(circle_at_75%_0%,rgba(192,82,105,.13),transparent_34%),linear-gradient(180deg,#181011,#0b0909)]">
-        <div className="mx-auto w-full max-w-[1223px] px-7 py-10 sm:py-14">
+        <div className="mx-auto w-full max-w-[1223px] px-5 py-10 sm:px-7 sm:py-14">
           <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#e8919d]">For You TV</p>
           <h1 className="mt-2 font-display text-4xl text-white sm:text-5xl">
             {section.data?.title || "Your Channels"}
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
-            {section.data?.description || "A curated live TV collection without the IPTV clutter."}
+            {section.data?.description || "A curated live TV collection without the clutter."}
           </p>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1223px] px-7 pt-7">
+      <section className="mx-auto w-full max-w-[1223px] px-5 pt-7 sm:px-7">
         <label className="flex h-11 max-w-md items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.035] px-4 text-white/55 focus-within:border-[#e8919d]/35 focus-within:bg-white/[0.05]">
           <Search className="h-4 w-4 shrink-0" />
           <input
@@ -52,7 +52,7 @@ export default function Browse() {
         {section.isLoading ? (
           <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {Array.from({ length: 12 }).map((_, index) => (
-              <div key={index} className="h-[112px] animate-pulse rounded-[12px] bg-white/[0.04]" />
+              <div key={index} className="h-[118px] animate-pulse rounded-[13px] bg-white/[0.04]" />
             ))}
           </div>
         ) : section.isError ? (
