@@ -25,7 +25,6 @@ export interface TvCategoryCard {
   id: string;
   title: string;
   description: string;
-  image: string;
   to: string;
   icon: TvCategoryIcon;
 }
