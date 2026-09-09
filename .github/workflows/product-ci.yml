@@ -57,15 +57,23 @@ jobs:
       - name: Resolve curated catalog and mint one playback source
         run: |
           curl --silent --fail http://127.0.0.1:4173/api/tv/home > /tmp/home.json
+          curl --silent --fail http://127.0.0.1:4173/api/tv/section/all > /tmp/all.json
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const home = JSON.parse(fs.readFileSync('/tmp/home.json', 'utf8'));
-          if (!home.ok) throw new Error('home API not ok');
+          const all = JSON.parse(fs.readFileSync('/tmp/all.json', 'utf8'));
+          if (!home.ok || !all.ok) throw new Error('TV metadata API not ok');
+
           const live = home.rows.filter(r => r.kind === 'channels').flatMap(r => r.items || []);
-          if (live.length < 5) throw new Error(`too few curated channels resolved: ${live.length}`);
+          if (live.length < 10) throw new Error(`too few home channels resolved: ${live.length}`);
+          if (all.channels.length < 25) throw new Error(`too few total curated channels resolved: ${all.channels.length}`);
+
           const first = live[0];
           fs.writeFileSync('/tmp/channel-id.txt', first.id);
-          console.log(`resolved ${live.length} home channels; testing ${first.id}`);
+          console.log(`home: ${live.length} channels resolved`);
+          console.log(`all curated: ${all.channels.length} channels resolved`);
+          console.log(`currently missing: ${all.missingChannels.length ? all.missingChannels.join(', ') : 'none'}`);
+          console.log(`testing playback source for ${first.id}`);
           NODE
           CHANNEL_ID=$(cat /tmp/channel-id.txt)
           curl --silent --fail "http://127.0.0.1:4173/api/tv/channel/${CHANNEL_ID}" > /tmp/playback.json
