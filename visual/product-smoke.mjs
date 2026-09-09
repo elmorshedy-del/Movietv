@@ -21,6 +21,28 @@ async function capture(name, viewport) {
     colorScheme: "dark",
     reducedMotion: "reduce",
   });
+
+  // UI smoke owns rendering and navigation, while Product CI owns provider
+  // playback checks. Mock the browser-only player libraries here so this test
+  // never depends on a third-party CDN or starts a real media stream.
+  await context.addInitScript(() => {
+    class HlsMock {
+      static isSupported() {
+        return true;
+      }
+      static Events = { ERROR: "error" };
+      on() {}
+      loadSource() {}
+      attachMedia() {}
+      destroy() {}
+    }
+    window.Hls = HlsMock;
+    window.mpegts = {
+      isSupported: () => false,
+      getFeatureList: () => ({ mseH265Playback: false }),
+    };
+  });
+
   const page = await context.newPage();
   const consoleErrors = [];
   page.on("console", (message) => {
@@ -36,7 +58,6 @@ async function capture(name, viewport) {
   const liveLinks = page.locator('a[href^="/watch/"]');
   const liveCount = await liveLinks.count();
   if (liveCount < 10) failures.push(`${name}: expected at least 10 rendered live cards, got ${liveCount}`);
-
   await page.screenshot({ path: path.join(OUTPUT, `${name}-home.png`), fullPage: true });
 
   await page.goto(new URL("/browse/premium", BASE_URL).toString(), { waitUntil: "domcontentloaded" });
@@ -45,12 +66,19 @@ async function capture(name, viewport) {
   if (premiumCount < 5) failures.push(`${name}: premium browse resolved only ${premiumCount} channels`);
   await page.screenshot({ path: path.join(OUTPUT, `${name}-premium.png`), fullPage: true });
 
+  await page.goto(new URL("/watch/hbo", BASE_URL).toString(), { waitUntil: "domcontentloaded" });
+  await page.getByRole("heading", { name: "HBO" }).waitFor({ timeout: 30_000 });
+  await page.getByRole("button", { name: /favorites|saved/i }).waitFor({ timeout: 30_000 });
+  const videoCount = await page.locator("video").count();
+  if (videoCount !== 1) failures.push(`${name}: expected exactly one video player, got ${videoCount}`);
+  await page.screenshot({ path: path.join(OUTPUT, `${name}-watch.png`), fullPage: true });
+
   if (consoleErrors.length) {
     failures.push(`${name}: console/page errors: ${consoleErrors.slice(0, 8).join(" | ")}`);
   }
 
   await context.close();
-  return { name, viewport, liveCount, premiumCount, consoleErrors };
+  return { name, viewport, liveCount, premiumCount, videoCount, consoleErrors };
 }
 
 try {
