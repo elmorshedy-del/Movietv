@@ -7,7 +7,7 @@ export default function HomeRow({ row }: { row: TvHomeRow }) {
   return (
     <section
       data-tv-home-row={row.id}
-      className="mx-auto w-full max-w-[1223px] px-5 pt-[18px] first:pt-[15px] sm:px-7"
+      className="mx-auto w-full max-w-[1223px] px-5 pt-[18px] first:pt-[10px] sm:px-7"
     >
       <div className="mb-[10px] flex items-end justify-between gap-4">
         <h2 className="text-[22px] font-semibold leading-none tracking-[-0.025em] text-white">
