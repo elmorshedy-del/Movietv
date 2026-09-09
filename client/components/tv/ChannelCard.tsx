@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { TvChannelSummary } from "@shared/tv";
@@ -13,6 +14,12 @@ function initials(label: string) {
 }
 
 export default function ChannelCard({ channel }: { channel: TvChannelSummary }) {
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [channel.icon]);
+
   return (
     <Link
       to={`/watch/${encodeURIComponent(channel.id)}`}
@@ -22,15 +29,13 @@ export default function ChannelCard({ channel }: { channel: TvChannelSummary }) 
       <div className="relative flex h-full flex-col justify-between p-3.5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex h-11 min-w-11 items-center justify-center overflow-hidden rounded-[9px] bg-white/[0.06] px-2 ring-1 ring-white/[0.06]">
-            {channel.icon ? (
+            {channel.icon && !logoFailed ? (
               <img
                 src={channel.icon}
                 alt=""
                 referrerPolicy="no-referrer"
                 className="max-h-8 max-w-[72px] object-contain"
-                onError={(event) => {
-                  event.currentTarget.style.display = "none";
-                }}
+                onError={() => setLogoFailed(true)}
               />
             ) : (
               <span className="text-sm font-bold tracking-wide text-white/85">{initials(channel.label)}</span>
