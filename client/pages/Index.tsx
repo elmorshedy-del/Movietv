@@ -174,7 +174,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export default function Index() {
   return (
-    <LayoutShell>
+    <>
       <section className="relative h-[390px] overflow-hidden bg-[#130d0c] lg:h-[397px]">
         <div className="absolute inset-0">
           <div
@@ -201,11 +201,11 @@ export default function Index() {
               </h1>
               <Heart className="mt-2 h-8 w-8 -rotate-6 text-[#f18491]" strokeWidth={1.6} />
             </div>
-            <p className="mt-5 max-w-[350px] text-[15px] leading-[1.6] text-white/78">
+            <p className="mt-5 max-w-[350px] text-[15px] leading-[1.6] text-white/[0.78]">
               A world of stories, places, flavours and people — all in one place,
               just for you.
             </p>
-            <p className="mt-1 text-[15px] leading-[1.6] text-white/78">
+            <p className="mt-1 text-[15px] leading-[1.6] text-white/[0.78]">
               Press play on what makes you happy. <Heart className="inline h-3.5 w-3.5 text-[#f8a8ae]" />
             </p>
 
@@ -216,7 +216,7 @@ export default function Index() {
               </button>
               <Link
                 to="/watchlist"
-                className="flex h-[43px] items-center gap-2 rounded-full border border-white/45 bg-black/20 px-6 text-[14px] font-medium text-white backdrop-blur-sm transition hover:bg-white/10"
+                className="flex h-[43px] items-center gap-2 rounded-full border border-white/[0.45] bg-black/20 px-6 text-[14px] font-medium text-white backdrop-blur-sm transition hover:bg-white/10"
               >
                 <Bookmark className="h-4 w-4" />
                 My Watchlist
@@ -231,7 +231,7 @@ export default function Index() {
           </p>
 
           <div className="absolute right-7 top-7 hidden w-[165px] xl:block">
-            <ul className="space-y-3 text-[9px] font-semibold uppercase tracking-[0.22em] text-white/55">
+            <ul className="space-y-3 text-[9px] font-semibold uppercase tracking-[0.22em] text-white/[0.55]">
               {SIDE_LINKS.map((label) => (
                 <li key={label} className="flex items-center gap-1.5">
                   {label}
@@ -258,7 +258,7 @@ export default function Index() {
                   alt=""
                   className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 <p className="absolute bottom-3 left-3 right-3 text-[16px] font-semibold leading-tight text-white drop-shadow-md">
                   {item.title}
                 </p>
@@ -284,13 +284,13 @@ export default function Index() {
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/34 to-black/5" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/[0.34] to-black/5" />
                 <div className="absolute bottom-3 left-3 right-2">
                   <span className="mb-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm">
                     <Icon className="h-4 w-4" />
                   </span>
                   <p className="text-[14px] font-semibold leading-tight text-white">{label}</p>
-                  <p className="mt-1 text-[10.5px] leading-[1.38] text-white/72">{description}</p>
+                  <p className="mt-1 text-[10.5px] leading-[1.38] text-white/[0.72]">{description}</p>
                 </div>
               </Link>
             ))}
@@ -324,11 +324,11 @@ export default function Index() {
               <article key={item.title} className="w-[188px] shrink-0">
                 <div className="relative h-[121px] overflow-hidden rounded-[4px] bg-[#171212]">
                   <img src={item.image} alt="" className="h-full w-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-black/5 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
                   <p className="absolute bottom-[14px] left-3 right-3 truncate text-[12px] font-medium text-white">
                     {item.title}
                   </p>
-                  <div className="absolute bottom-[5px] left-3 right-3 h-[3px] rounded-full bg-white/22">
+                  <div className="absolute bottom-[5px] left-3 right-3 h-[3px] rounded-full bg-white/[0.22]">
                     <div
                       className="h-full rounded-full bg-[#f26f83]"
                       style={{ width: `${item.progress}%` }}
@@ -343,10 +343,6 @@ export default function Index() {
           </div>
         </section>
       </main>
-    </LayoutShell>
+    </>
   );
-}
-
-function LayoutShell({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
 }
