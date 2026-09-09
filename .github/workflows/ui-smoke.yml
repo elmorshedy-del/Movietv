@@ -1,0 +1,54 @@
+name: UI Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, live-tv-product]
+    paths:
+      - "client/**"
+      - "server/**"
+      - "shared/**"
+      - "visual/product-smoke.mjs"
+      - ".github/workflows/ui-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  render-product:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Install browser smoke dependencies
+        working-directory: visual
+        run: npm install --no-audit --no-fund
+      - name: Install pinned Chromium
+        working-directory: visual
+        run: npx playwright install --with-deps chromium
+      - name: Start app with API middleware
+        run: |
+          nohup pnpm exec vite --host 127.0.0.1 --port 4173 --strictPort > /tmp/movietv-ui.log 2>&1 &
+          for i in {1..40}; do
+            if curl --silent --fail http://127.0.0.1:4173/api/ping > /dev/null; then exit 0; fi
+            sleep 0.5
+          done
+          cat /tmp/movietv-ui.log
+          exit 1
+      - name: Exercise and render product UI
+        env:
+          PRODUCT_URL: http://127.0.0.1:4173/
+        run: node visual/product-smoke.mjs
+      - name: Upload screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: movietv-product-ui
+          path: visual/product-output/
+          if-no-files-found: warn
+          retention-days: 30
