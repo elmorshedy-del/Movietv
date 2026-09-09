@@ -1,16 +1,10 @@
 name: Visual Match
 
+# The original concept screenshot is now a style reference, not the product
+# specification. Run this manually when comparing visual language; normal
+# product/content changes should not chase obsolete Barbie/Emily poster pixels.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "client/**"
-      - "visual/**"
-      - "index.html"
-      - "vite.config.ts"
-      - "tailwind.config.ts"
-      - ".github/workflows/visual-match.yml"
 
 permissions:
   contents: read
