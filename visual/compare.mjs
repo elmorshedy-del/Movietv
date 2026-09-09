@@ -12,21 +12,21 @@ const OUTPUT_DIR = path.join(VISUAL_DIR, "output");
 const URL = process.env.VISUAL_URL || "http://127.0.0.1:4173/";
 
 const TARGET = { width: 1223, height: 1286 };
-const COMPARE = { width: 611, height: 643 };
+const COMPARE = { width: 305, height: 321 };
 
 const REGION_BANDS = [
-  { name: "header", y0: 0, y1: 31 },
-  { name: "hero", y0: 31, y1: 232 },
-  { name: "trending", y0: 232, y1: 323 },
-  { name: "explore", y0: 323, y1: 440 },
-  { name: "arabic", y0: 440, y1: 503 },
-  { name: "continue", y0: 503, y1: 598 },
-  { name: "footer", y0: 598, y1: 643 },
+  { name: "header", y0: 0, y1: 16 },
+  { name: "hero", y0: 16, y1: 116 },
+  { name: "trending", y0: 116, y1: 161 },
+  { name: "explore", y0: 161, y1: 220 },
+  { name: "arabic", y0: 220, y1: 251 },
+  { name: "continue", y0: 251, y1: 299 },
+  { name: "footer", y0: 299, y1: 321 },
 ];
 
 await fsp.mkdir(OUTPUT_DIR, { recursive: true });
 
-const refB64 = (await fsp.readFile(path.join(VISUAL_DIR, "reference-611x643.jpg.b64"), "utf8")).trim();
+const refB64 = (await fsp.readFile(path.join(VISUAL_DIR, "reference-305x321.jpg.b64"), "utf8")).trim();
 const refJpg = path.join(OUTPUT_DIR, "reference-source.jpg");
 await fsp.writeFile(refJpg, Buffer.from(refB64, "base64"));
 
@@ -139,7 +139,7 @@ try {
     return (sum / count / 255) * 100;
   }
 
-  function structuralLumaError(dataA, dataB, x0 = 0, y0 = 0, x1 = a.width, y1 = a.height, block = 8) {
+  function structuralLumaError(dataA, dataB, x0 = 0, y0 = 0, x1 = a.width, y1 = a.height, block = 4) {
     let total = 0;
     let blocks = 0;
     for (let by = y0; by < y1; by += block) {
@@ -205,7 +205,7 @@ try {
       animationsDisabled: true,
       externalImagesWaited: true,
       pixelmatchThreshold: 0.1,
-      structuralBlockSize: 8,
+      structuralBlockSize: 4,
       note: "Full score includes photography differences. Structural luma score is a coarse block-average metric intended to be less sensitive to image-content mismatch.",
     },
     full: {
@@ -219,7 +219,6 @@ try {
   };
 
   await fsp.writeFile(path.join(OUTPUT_DIR, "metrics.json"), JSON.stringify(metrics, null, 2) + "\n");
-
   console.log(JSON.stringify(metrics, null, 2));
 } finally {
   await browser.close();
