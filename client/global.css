@@ -1,3 +1,6 @@
+/** @import must precede all other statements */
+@import url("https://fonts.googleapis.com/css2?family=Allura&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Sacramento&display=swap");
+
 @import "tailwindcss";
 
 @config "../tailwind.config.ts";
@@ -89,7 +92,7 @@
   }
 
   .font-script {
-    font-family: "Snell Roundhand", "Segoe Script", "Bradley Hand", "Brush Script MT", cursive;
+    font-family: "Allura", "Sacramento", cursive;
     font-weight: 400;
   }
 }
