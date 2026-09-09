@@ -27,6 +27,7 @@ export interface TvCategoryCard {
   description: string;
   to: string;
   icon: TvCategoryIcon;
+  image?: string;
 }
 
 export interface TvHeroContent {
