@@ -3,7 +3,7 @@ name: UI Smoke
 on:
   workflow_dispatch:
   push:
-    branches: [main, live-tv-product]
+    branches: [main, live-tv-product, visual-restoration]
     paths:
       - "client/**"
       - "server/**"
@@ -41,7 +41,7 @@ jobs:
           done
           cat /tmp/movietv-ui.log
           exit 1
-      - name: Exercise and render product UI
+      - name: Exercise, measure, and render product UI
         env:
           PRODUCT_URL: http://127.0.0.1:4173/
         run: node visual/product-smoke.mjs
