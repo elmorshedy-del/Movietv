@@ -5,7 +5,7 @@ import { chromium } from "playwright";
 
 const ROOT = process.cwd();
 const OUTPUT = path.join(ROOT, "visual", "product-output");
-const URL = process.env.PRODUCT_URL || "http://127.0.0.1:4173/";
+const BASE_URL = process.env.PRODUCT_URL || "http://127.0.0.1:4173/";
 
 await fsp.mkdir(OUTPUT, { recursive: true });
 
@@ -28,7 +28,7 @@ async function capture(name, viewport) {
   });
   page.on("pageerror", (error) => consoleErrors.push(error.message));
 
-  await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("heading", { name: "Premium Picks" }).waitFor({ timeout: 30_000 });
   await page.getByRole("heading", { name: "For Your Mood" }).waitFor({ timeout: 30_000 });
   await page.getByRole("heading", { name: "Arabic Favorites" }).waitFor({ timeout: 30_000 });
@@ -39,7 +39,7 @@ async function capture(name, viewport) {
 
   await page.screenshot({ path: path.join(OUTPUT, `${name}-home.png`), fullPage: true });
 
-  await page.goto(new URL("/browse/premium", URL).toString(), { waitUntil: "domcontentloaded" });
+  await page.goto(new URL("/browse/premium", BASE_URL).toString(), { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "Premium" }).waitFor({ timeout: 30_000 });
   const premiumCount = await page.locator('a[href^="/watch/"]').count();
   if (premiumCount < 5) failures.push(`${name}: premium browse resolved only ${premiumCount} channels`);
@@ -57,7 +57,7 @@ try {
   const results = [];
   results.push(await capture("desktop", { width: 1223, height: 1000 }));
   results.push(await capture("mobile", { width: 390, height: 844 }));
-  const report = { generatedAt: new Date().toISOString(), url: URL, results, failures };
+  const report = { generatedAt: new Date().toISOString(), url: BASE_URL, results, failures };
   await fsp.writeFile(path.join(OUTPUT, "report.json"), JSON.stringify(report, null, 2) + "\n");
   console.log(JSON.stringify(report, null, 2));
   if (failures.length) process.exitCode = 1;
