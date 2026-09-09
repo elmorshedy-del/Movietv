@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ChannelDefinition } from "./content";
+import { getChannelDefinition, type ChannelDefinition } from "./content";
 import { rankChannelCandidates, type CatalogChannel } from "./catalog";
 
 const row = (streamId: string, name: string, categoryName = "USA"): CatalogChannel => ({
@@ -50,5 +50,30 @@ describe("channel resolver", () => {
       row("contains", "VIP MBC 4 FHD", "MBC"),
     ]);
     expect(candidates[0]?.streamId).toBe("exact");
+  });
+
+  it("fails closed instead of turning DMC into DMC Drama", () => {
+    const definition = getChannelDefinition("dmc");
+    expect(definition).toBeDefined();
+    const candidates = rankChannelCandidates(definition!, [row("drama", "DMC DRAMA [EG]", "Egypt")]);
+    expect(candidates).toEqual([]);
+  });
+
+  it("fails closed instead of turning MBC Masr into MBC Masr 2", () => {
+    const definition = getChannelDefinition("mbc-masr");
+    expect(definition).toBeDefined();
+    const candidates = rankChannelCandidates(definition!, [row("two", "MBC Masr 2 FHD", "MBC")]);
+    expect(candidates).toEqual([]);
+  });
+
+  it("keeps Discovery subchannels separate from the base Discovery channel", () => {
+    const definition = getChannelDefinition("discovery");
+    expect(definition).toBeDefined();
+    const candidates = rankChannelCandidates(definition!, [
+      row("science", "Discovery Science [US]"),
+      row("id", "Discovery ID [US]"),
+      row("family", "Discovery Family [US]"),
+    ]);
+    expect(candidates).toEqual([]);
   });
 });
