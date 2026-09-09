@@ -1,11 +1,12 @@
 import type { TvCategoryCard, TvHeroContent } from "@shared/tv";
 
 /**
- * Product content lives here on purpose.
+ * Editorial/product configuration lives here on purpose.
  *
- * To add/remove/swap a channel, edit CHANNELS and then reference its id from
- * HOME_ROWS or SECTIONS. Never pin provider stream ids here: provider ids are
- * mutable and are resolved from the live catalog at runtime.
+ * Adding, removing, reordering, or swapping channels should normally require
+ * edits only in this file. Provider stream ids are deliberately never stored
+ * here because they are mutable; catalog.ts resolves the best live variant at
+ * runtime from stable logical channel definitions.
  */
 export interface ChannelDefinition {
   id: string;
@@ -51,9 +52,13 @@ function channel(
 }
 
 export const CHANNELS: Record<string, ChannelDefinition> = {
-  hbo: channel("hbo", "HBO", ["HBO [US]", "HBO US"], { exclude: ["signature", "family", "latino", "zone"] }),
+  hbo: channel("hbo", "HBO", ["HBO [US]", "HBO US"], {
+    exclude: ["signature", "family", "latino", "zone"],
+  }),
   hboSignature: channel("hbo-signature", "HBO Signature", ["HBO Signature [US]", "HBO Signature"]),
-  showtime: channel("showtime", "Showtime", ["Showtime HD [US]", "Showtime [US]"], { exclude: ["women", "extreme", "family", "next"] }),
+  showtime: channel("showtime", "Showtime", ["Showtime HD [US]", "Showtime [US]"], {
+    exclude: ["women", "extreme", "family", "next"],
+  }),
   showtimeWomen: channel("showtime-women", "Showtime Women", ["Showtime Women [US]", "Showtime Women"]),
   starzCinema: channel("starz-cinema", "STARZ Cinema", ["Starz Cinema FHD [US]", "Starz Cinema [US]", "Starz Cinema"]),
   starzComedy: channel("starz-comedy", "STARZ Comedy", ["Starz Comedy FHD [US]", "Starz Comedy [US]", "Starz Comedy"]),
@@ -116,12 +121,9 @@ export const CHANNELS: Record<string, ChannelDefinition> = {
   history: channel("history", "History", ["[Vip]OSN_History_FHD", "[Vip]Osn_History_HD", "History [US]"]),
   travel: channel("travel-channel", "Travel Channel", ["Travel Channel [UK]", "Travel Channel [US]", "Travel Channel"]),
 
-  mbcMasr: channel(
-    "mbc-masr",
-    "MBC Masr",
-    ["MBC Masr FHD", "MBC Masr HD", "MBC Masr"],
-    { exclude: ["mbc masr 2"] },
-  ),
+  mbcMasr: channel("mbc-masr", "MBC Masr", ["MBC Masr FHD", "MBC Masr HD", "MBC Masr"], {
+    exclude: ["mbc masr 2"],
+  }),
   mbcMasr2: channel("mbc-masr-2", "MBC Masr 2", ["MBC Masr 2 FHD", "MBC Masr 2 HD", "MBC Masr 2"]),
   mbc4: channel("mbc-4", "MBC 4", ["MBC 4 FHD", "MBC 4HD", "MBC 4 HEVC", "MBC 4"]),
   dmc: channel("dmc", "DMC", ["DMC [EG]", "DMC"], { exclude: ["dmc drama"] }),
@@ -151,12 +153,12 @@ export const HERO: TvHeroContent = {
 };
 
 const MOODS: TvCategoryCard[] = [
-  { id: "talk", title: "Talk & Daytime", description: "US daytime, conversations and entertainment.", image: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=900&q=85", to: "/browse/us-tv", icon: "talk" },
-  { id: "fashion", title: "Fashion & Lifestyle", description: "Style, reality and a more beautiful everyday.", image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900&q=85", to: "/browse/lifestyle", icon: "fashion" },
-  { id: "food", title: "Food & Home", description: "Cooking, interiors and easy comfort viewing.", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=85", to: "/browse/lifestyle", icon: "food" },
-  { id: "discover", title: "Discover", description: "Nature, science, travel, history and true crime.", image: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?auto=format&fit=crop&w=900&q=85", to: "/browse/discover", icon: "discover" },
-  { id: "movie-night", title: "Movie Night", description: "Premium and Arabic movie channels together.", image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=85", to: "/browse/movies", icon: "movie" },
-  { id: "arabic", title: "Egypt & Tunisia", description: "The channels that make it feel like home.", image: "https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?auto=format&fit=crop&w=900&q=85", to: "/browse/arabic", icon: "arabic" },
+  { id: "talk", title: "Talk & Daytime", description: "US daytime, conversations and entertainment.", to: "/browse/us-tv", icon: "talk" },
+  { id: "fashion", title: "Fashion & Lifestyle", description: "Style, reality and a more beautiful everyday.", to: "/browse/lifestyle", icon: "fashion" },
+  { id: "food", title: "Food & Home", description: "Cooking, interiors and easy comfort viewing.", to: "/browse/lifestyle", icon: "food" },
+  { id: "discover", title: "Discover", description: "Nature, science, travel, history and true crime.", to: "/browse/discover", icon: "discover" },
+  { id: "movie-night", title: "Movie Night", description: "Premium and Arabic movie channels together.", to: "/browse/movies", icon: "movie" },
+  { id: "arabic", title: "Egypt & Tunisia", description: "The channels that make it feel like home.", to: "/browse/arabic", icon: "arabic" },
 ];
 
 export const HOME_ROWS: HomeRowDefinition[] = [
@@ -200,13 +202,13 @@ const SECTION_LIST: SectionDefinition[] = [
     id: "us-tv",
     title: "US TV",
     description: "Daytime, talk, entertainment and familiar American networks.",
-    channelIds: ["abc-us", "nbc-us", "cbs-us", "e-entertainment", "bravo-us", "lifetime-us", "amc-us", "fx-us", "fxx-us", "tnt-us", "usa-network", "freeform-us", "hallmark-us", "oxygen-us"],
+    channelIds: ["abc-us", "nbc-us", "e-entertainment", "amc-us", "fx-us", "fxx-us", "usa-network", "freeform-us", "oxygen-us"],
   },
   {
     id: "lifestyle",
     title: "Lifestyle",
     description: "Fashion, reality, food, home and easy watching.",
-    channelIds: ["osn-woman", "tlc", "e-entertainment", "fashion-tv", "hgtv", "bravo-us", "lifetime-us", "food-network", "fatafeat", "cbc-sofra"],
+    channelIds: ["osn-woman", "tlc", "e-entertainment", "fashion-tv", "hgtv", "food-network", "fatafeat", "cbc-sofra"],
   },
   {
     id: "discover",
