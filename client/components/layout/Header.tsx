@@ -39,7 +39,7 @@ export default function Header() {
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "flex h-[31px] items-center rounded-[4px] px-4 text-[12px] font-medium text-white/78 transition-colors hover:bg-white/[0.05] hover:text-white",
+                  "flex h-[31px] items-center rounded-[4px] px-4 text-[12px] font-medium text-white/[0.78] transition-colors hover:bg-white/[0.05] hover:text-white",
                   active &&
                     "border-b-2 border-[#f47f8c] bg-white/[0.075] text-white shadow-[0_6px_16px_rgba(0,0,0,.18)]",
                 )}
