@@ -1,5 +1,5 @@
 /** @import must precede all other statements */
-@import url("https://fonts.googleapis.com/css2?family=Allura&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600;1,700&family=Sacramento&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Allura&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Sacramento&display=swap");
 
 @import "tailwindcss";
 
@@ -112,7 +112,7 @@
 
 /*
  * Desktop reference calibration.
- * These values come from the deterministic 1223 × 1286 comparison run,
+ * These values come from deterministic 1223 × 1286 comparison runs,
  * not from visual guessing. They only affect wide layouts around the
  * reference viewport and leave the mobile/tablet behavior unchanged.
  */
@@ -123,9 +123,15 @@
     display: block !important;
   }
 
-  /* The hero copy begins about 22px farther right than the content rows. */
+  /* Match the reference's hero-copy inset and vertical baseline. */
   main.flex-1 > section:first-child > div.relative > div:first-child {
     margin-left: 22px;
+    transform: translateY(-4px);
+  }
+
+  /* The side-menu text is inset farther into its 205px hero rail. */
+  main.flex-1 > section:first-child > div.relative > div:last-child {
+    width: 135px !important;
   }
 
   /* Measured cumulative vertical offsets from the first rendered baseline. */
