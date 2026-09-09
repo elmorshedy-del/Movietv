@@ -54,7 +54,7 @@ jobs:
           done
           cat /tmp/movietv.log
           exit 1
-      - name: Resolve curated catalog and mint one playback source
+      - name: Resolve complete curated catalog
         run: |
           curl --silent --fail http://127.0.0.1:4173/api/tv/home > /tmp/home.json
           curl --silent --fail http://127.0.0.1:4173/api/tv/section/all > /tmp/all.json
@@ -67,21 +67,28 @@ jobs:
           const live = home.rows.filter(r => r.kind === 'channels').flatMap(r => r.items || []);
           if (live.length < 10) throw new Error(`too few home channels resolved: ${live.length}`);
           if (all.channels.length < 25) throw new Error(`too few total curated channels resolved: ${all.channels.length}`);
+          if (all.missingChannels.length) {
+            throw new Error(`active curated channels missing from provider catalog: ${all.missingChannels.join(', ')}`);
+          }
 
-          const first = live[0];
-          fs.writeFileSync('/tmp/channel-id.txt', first.id);
           console.log(`home: ${live.length} channels resolved`);
           console.log(`all curated: ${all.channels.length} channels resolved`);
-          console.log(`currently missing: ${all.missingChannels.length ? all.missingChannels.join(', ') : 'none'}`);
-          console.log(`testing playback source for ${first.id}`);
+          console.log('active curated catalog coverage: complete');
           NODE
-          CHANNEL_ID=$(cat /tmp/channel-id.txt)
-          curl --silent --fail "http://127.0.0.1:4173/api/tv/channel/${CHANNEL_ID}" > /tmp/playback.json
-          node --input-type=module <<'NODE'
+      - name: Mint playback sources across product sections
+        run: |
+          for CHANNEL_ID in hbo rotana-cinema-eg el-hiwar fashion-tv; do
+            curl --silent --fail "http://127.0.0.1:4173/api/tv/channel/${CHANNEL_ID}" > "/tmp/playback-${CHANNEL_ID}.json"
+            CHANNEL_ID="$CHANNEL_ID" node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const data = JSON.parse(fs.readFileSync('/tmp/playback.json', 'utf8'));
+          const id = process.env.CHANNEL_ID;
+          const data = JSON.parse(fs.readFileSync(`/tmp/playback-${id}.json`, 'utf8'));
           if (!data.ok || (!data.playbackUrl && !data.tsPlaybackUrl)) {
-            throw new Error('playback API did not return a playable source');
+            throw new Error(`playback API did not return a source for ${id}`);
           }
-          console.log(`playback source ok for ${data.channel.label}`);
+          if (!data.channel?.available || data.variantCount < 1) {
+            throw new Error(`invalid playback metadata for ${id}`);
+          }
+          console.log(`playback source ok: ${data.channel.label} (${data.variantCount} variant(s))`);
           NODE
+          done
