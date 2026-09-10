@@ -143,9 +143,9 @@ async function capture(name, viewport) {
   page.on("pageerror", (error) => consoleErrors.push(error.message));
 
   await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.getByRole("heading", { name: "Premium Picks" }).waitFor({ timeout: 30_000 });
-  await page.getByRole("heading", { name: "For Your Mood" }).waitFor({ timeout: 30_000 });
-  await page.getByRole("heading", { name: "Arabic Favorites" }).waitFor({ timeout: 30_000 });
+  await page.locator('[data-tv-home-row="premium"]').waitFor({ timeout: 30_000 });
+  await page.locator('[data-tv-home-row="moods"]').waitFor({ timeout: 30_000 });
+  await page.locator('[data-tv-home-row="arabic-favorites"]').waitFor({ timeout: 30_000 });
   await page.evaluate(() => document.fonts?.ready);
 
   const liveLinks = page.locator('a[href^="/watch/"]');
