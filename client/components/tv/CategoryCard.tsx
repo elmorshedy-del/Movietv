@@ -57,7 +57,7 @@ export default function CategoryCard({ item }: { item: TvCategoryCard }) {
     <Link
       to={item.to}
       data-tv-category-card
-      className="group relative h-[172px] w-[158px] shrink-0 overflow-hidden rounded-[5px] border border-white/[0.07] bg-[#171212] shadow-[0_16px_36px_rgba(0,0,0,.16)] transition duration-200 hover:-translate-y-0.5 hover:border-white/[0.16]"
+      className="group relative h-[172px] w-[158px] shrink-0 overflow-hidden rounded-[5px] border border-white/[0.07] bg-[#171212] shadow-[0_16px_36px_rgba(0,0,0,.16)] outline-none transition-[transform,box-shadow,border-color] duration-300 ease-out motion-safe:hover:-translate-y-1 motion-safe:hover:scale-[1.018] hover:border-white/[0.18] hover:shadow-[0_24px_50px_rgba(0,0,0,.38)] focus-visible:border-[#f39aa6]/44 focus-visible:ring-2 focus-visible:ring-[#f39aa6]/22 active:scale-[0.985]"
     >
       <Artwork icon={item.icon} />
       {image ? (
@@ -65,19 +65,20 @@ export default function CategoryCard({ item }: { item: TvCategoryCard }) {
           src={image}
           alt=""
           loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover saturate-[.82] brightness-[.82] transition duration-300 group-hover:scale-[1.025] group-hover:saturate-100 group-hover:brightness-[.9]"
+          className="absolute inset-0 h-full w-full object-cover saturate-[.82] brightness-[.82] transition-[transform,filter] duration-500 ease-out motion-safe:group-hover:scale-[1.065] group-hover:saturate-100 group-hover:brightness-[.92]"
           onError={(event) => {
             event.currentTarget.style.display = "none";
           }}
         />
       ) : null}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,7,7,.02)_0%,rgba(8,7,7,.08)_38%,rgba(8,7,7,.94)_100%)]" />
-      <div className="absolute bottom-0 left-0 right-0 p-3">
-        <span className="mb-1.5 grid h-6 w-6 place-items-center rounded-full border border-white/20 bg-black/35 text-white backdrop-blur-sm">
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,7,7,.02)_0%,rgba(8,7,7,.08)_38%,rgba(8,7,7,.94)_100%)] transition-colors duration-300 group-hover:bg-[linear-gradient(180deg,rgba(8,7,7,0)_0%,rgba(8,7,7,.04)_34%,rgba(8,7,7,.91)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-0 ring-1 ring-inset ring-white/[0.08] transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="absolute bottom-0 left-0 right-0 p-3 transition-transform duration-300 ease-out motion-safe:group-hover:-translate-y-0.5">
+        <span className="mb-1.5 grid h-6 w-6 place-items-center rounded-full border border-white/20 bg-black/35 text-white backdrop-blur-sm transition-[transform,background-color,border-color] duration-300 group-hover:scale-110 group-hover:border-white/30 group-hover:bg-black/48">
           <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
         </span>
-        <p className="text-[13px] font-semibold leading-tight text-white">{item.title}</p>
-        <p className="mt-1 line-clamp-2 text-[9.5px] leading-[1.35] text-white/70">{item.description}</p>
+        <p className="text-[13px] font-semibold leading-tight text-white transition-colors duration-300 group-hover:text-[#fff8f8]">{item.title}</p>
+        <p className="mt-1 line-clamp-2 text-[9.5px] leading-[1.35] text-white/70 transition-colors duration-300 group-hover:text-white/82">{item.description}</p>
       </div>
     </Link>
   );
