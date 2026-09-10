@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bookmark, Heart, Play, Sparkles } from "lucide-react";
+import { Bookmark, Heart, Play } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import type { TvChannelRow } from "@shared/tv";
 import HomeRow from "@/components/tv/HomeRow";
@@ -13,14 +13,15 @@ import {
 const HERO_FALLBACK = {
   greeting: "Good evening,",
   headline: "Beautiful",
-  copy: "Your little world of live TV, movies, food and stories — picked just for you.",
+  copy: "Movies, American TV, fashion, food, documentaries, Egypt and Tunisia — all in one place I made for you.",
   sideLinks: [
     { label: "Premium", to: "/browse/premium" },
     { label: "Movies", to: "/browse/movies" },
     { label: "US TV", to: "/browse/us-tv" },
-    { label: "Talk Shows", to: "/browse/us-tv" },
-    { label: "Fashion & Lifestyle", to: "/browse/lifestyle" },
-    { label: "Food & Home", to: "/browse/lifestyle" },
+    { label: "Talk & Daytime", to: "/browse/us-tv" },
+    { label: "Style & Reality", to: "/browse/style-reality" },
+    { label: "Cooking & Home", to: "/browse/food-home" },
+    { label: "Documentaries", to: "/browse/discover" },
     { label: "Egypt + Tunisia", to: "/browse/arabic" },
   ],
 };
@@ -107,25 +108,21 @@ export default function Index() {
         <EditorialBackdrop />
 
         <div className="relative mx-auto h-full min-h-[430px] w-full max-w-[1223px] px-5 sm:min-h-[400px] sm:px-7 lg:min-h-0">
-          <div className="flex h-full min-h-[430px] max-w-[470px] flex-col justify-center pb-7 pt-5 sm:min-h-[400px] lg:min-h-0 lg:pb-4 lg:pt-1">
+          <div className="flex h-full min-h-[430px] max-w-[500px] flex-col justify-center pb-7 pt-5 sm:min-h-[400px] lg:min-h-0 lg:pb-4 lg:pt-1">
             <p className="font-display text-[29px] leading-none text-[#f8f1ec] sm:text-[31px]">{hero.greeting}</p>
             <div className="mt-2 flex items-start gap-2">
               <h1 className="font-script text-[68px] leading-[0.9] text-[#f8a8ae] sm:text-[80px] lg:text-[84px]">{hero.headline}</h1>
               <Heart className="mt-1 h-7 w-7 -rotate-6 text-[#f18491] sm:mt-2 sm:h-8 sm:w-8" strokeWidth={1.6} />
             </div>
-            <p className="mt-5 max-w-[390px] text-[15px] leading-[1.62] text-white/[0.8]">{hero.copy}</p>
-            <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-white/[0.56]">
-              <Sparkles className="h-3.5 w-3.5 text-[#f4a2ad]" />
-              Pick a mood, or let me choose for you.
-            </p>
+            <p className="mt-5 max-w-[455px] text-[15px] leading-[1.62] text-white/[0.8]">{hero.copy}</p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3.5">
               <button
                 type="button"
                 onClick={playSomething}
-                className="flex h-[43px] items-center gap-2 rounded-full bg-[#f79ca7] px-5 text-[14px] font-semibold text-[#1a1110] shadow-[0_7px_30px_rgba(247,156,167,.18)] transition hover:bg-[#f6acb4] sm:px-6"
+                className="group flex h-[43px] items-center gap-2 rounded-full border border-white/[0.12] bg-[linear-gradient(105deg,#f7a0ab_0%,#ee9fbd_48%,#cda3dc_100%)] px-5 text-[14px] font-semibold text-[#1a1110] shadow-[0_8px_30px_rgba(233,151,183,.2)] transition-[transform,filter,box-shadow] duration-300 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_11px_34px_rgba(233,151,183,.3)] active:translate-y-0 sm:px-6"
               >
-                <Play className="h-4 w-4 fill-current" />
+                <Play className="h-4 w-4 fill-current transition-transform duration-300 group-hover:scale-110" />
                 Play Something for Me
               </button>
               <Link
