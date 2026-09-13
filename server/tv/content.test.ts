@@ -48,4 +48,15 @@ describe("TV content configuration", () => {
       .flatMap((section) => section.channelIds);
     expect(new Set(SECTIONS.all.channelIds)).toEqual(new Set(curated));
   });
+
+  it("defines a deterministic logo fallback list for every channel", () => {
+    for (const channel of definitions) {
+      expect(Array.isArray(channel.logoSources), channel.id).toBe(true);
+      expect(channel.logoSources?.every((source) => source.startsWith("https://")), channel.id).toBe(true);
+      if (channel.logoSources?.length) {
+        expect(channel.brandIcon, channel.id).toBe(channel.logoSources[0]);
+      }
+    }
+  });
+
 });
