@@ -52,11 +52,11 @@ After a gate passes, **stop**. Do not prepare or begin the next gate in the same
 The active base-branch manifest currently specifies:
 
 ```text
-Gate F — Shared Authoritative Timeline Core
+Gate G — In-Memory Room Store and Room Service
 ```
 
-Gate D's deterministic progressive-MP4 media contract/player work is merged.
+Gate F's pure shared timeline/protocol core is merged.
 
-Gate E is a real-device calibration experiment rather than a repository-code gate. It remains `EXTERNAL VALIDATION PENDING`. Per the reconciled architecture, that does **not** block building the pure shared sync core, but no drift threshold may be treated as final until Gate E is actually performed.
+Gate E remains `EXTERNAL VALIDATION PENDING`; it prevents final drift tuning but does not block domain/store construction.
 
-Gate F is intentionally pure and shared: types, event payloads, timeline projection/order math, and tests only. Do not create room storage, Socket.IO handlers, clock-estimator code, player sync control, chat, persistence, or UI in this gate.
+Gate G is intentionally server-domain-only: `WatchRoomStore`, its single-process in-memory adapter, room creation, participant join/rejoin/capacity logic, and deterministic tests. Do not add HTTP or Socket.IO room handlers yet.
