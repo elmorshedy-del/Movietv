@@ -14,6 +14,18 @@ function parseOptionalPositiveSafeInteger(value: string | null): number | undefi
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
+function describeValidation(validation: MediaValidationResult | null): string {
+  if (validation === null) {
+    return "Waiting for browser metadata";
+  }
+
+  if (validation.ok === true) {
+    return "Fingerprint duration matched";
+  }
+
+  return validation.message;
+}
+
 function readProbeConfig(): ProbeConfig {
   const params = new URLSearchParams(window.location.search);
   const videoUrl = params.get("src")?.trim() ?? "";
@@ -124,13 +136,7 @@ export default function WatchTogether() {
               <span className="block text-xs uppercase tracking-wide text-white/40">
                 Validation
               </span>
-              <span className="text-white/90">
-                {validation === null
-                  ? "Waiting for browser metadata"
-                  : validation.ok
-                    ? "Fingerprint duration matched"
-                    : validation.message}
-              </span>
+              <span className="text-white/90">{describeValidation(validation)}</span>
             </div>
           </section>
         </>
