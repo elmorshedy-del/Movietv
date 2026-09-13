@@ -10,7 +10,9 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc",
+    "typecheck": "pnpm typecheck:base && pnpm typecheck:watch",
+    "typecheck:base": "tsc",
+    "typecheck:watch": "tsc --project tsconfig.watch.json",
     "watch:scope": "node scripts/verify-watch-gate.mjs",
     "watch:gate": "pnpm watch:scope && pnpm typecheck && pnpm test && pnpm build"
   },
