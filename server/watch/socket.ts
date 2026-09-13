@@ -1,4 +1,4 @@
-import type { Server as HttpServer } from "node:http";
+import type { IncomingMessage, Server as HttpServer } from "node:http";
 import { Server, type Socket } from "socket.io";
 import { z } from "zod";
 import type {
@@ -121,10 +121,9 @@ function ensureCurrentBinding(
   return binding;
 }
 
-function isSameOriginRequest(request: Parameters<NonNullable<ConstructorParameters<typeof Server>[1]>["allowRequest"]>[0]): boolean {
+function isSameOriginRequest(request: IncomingMessage): boolean {
   const origin = request.headers.origin;
   if (!origin) return true;
-
   const host = request.headers.host;
   if (!host) return false;
 
@@ -135,11 +134,6 @@ function isSameOriginRequest(request: Parameters<NonNullable<ConstructorParamete
   }
 }
 
-/**
- * Attaches the permanent Watch Together Socket.IO transport to MovieTV's one
- * shared HTTP server. socket.id is transport identity only; logical continuity
- * is carried by clientId/participantId through RoomService.
- */
 export function attachWatchSocketServer(
   httpServer: HttpServer,
   roomService: RoomService,
@@ -173,11 +167,7 @@ export function attachWatchSocketServer(
           });
 
           if (!socket.connected) {
-            await roomService.setParticipantConnected(
-              input.roomId,
-              input.clientId,
-              false,
-            );
+            await roomService.setParticipantConnected(input.roomId, input.clientId, false);
             return;
           }
 
@@ -250,19 +240,12 @@ export function attachWatchSocketServer(
       void (async () => {
         try {
           const input = leaveSchema.parse(payload);
-          const binding = ensureCurrentBinding(
-            socket,
-            activeBindings,
-            input.roomId,
-          );
+          const binding = ensureCurrentBinding(socket, activeBindings, input.roomId);
           if (binding.clientId !== input.clientId) {
             throw new Error("Leave clientId does not match this socket session");
           }
 
-          const room = await roomService.removeParticipant(
-            input.roomId,
-            input.clientId,
-          );
+          const room = await roomService.removeParticipant(input.roomId, input.clientId);
           activeBindings.delete(bindingKey(input.roomId, input.clientId));
           socket.data.watch = undefined;
           await socket.leave(input.roomId);
@@ -282,9 +265,7 @@ export function attachWatchSocketServer(
       if (!binding) return;
 
       const key = bindingKey(binding.roomId, binding.clientId);
-      if (activeBindings.get(key) !== socket.id) {
-        return;
-      }
+      if (activeBindings.get(key) !== socket.id) return;
       activeBindings.delete(key);
 
       void roomService
@@ -296,8 +277,7 @@ export function attachWatchSocketServer(
           });
         })
         .catch(() => {
-          // The transport is already gone, so there is no client to report to.
-          // A later state request/join always reconciles from RoomService truth.
+          // The transport is already gone; future joins reconcile from store truth.
         });
     });
   });
@@ -305,10 +285,6 @@ export function attachWatchSocketServer(
   return io;
 }
 
-/**
- * Stops Socket.IO connections without owning MovieTV's HTTP server shutdown.
- * The caller closes the Gate C probe next and the shared HTTP server last.
- */
 export async function closeWatchSocketServer(io: WatchSocketServer): Promise<void> {
   io.disconnectSockets(true);
   await new Promise<void>((resolve) => {
