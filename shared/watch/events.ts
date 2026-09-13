@@ -54,10 +54,12 @@ interface PlaybackIntentBase {
 
 export interface PlayIntent extends PlaybackIntentBase {
   type: "play";
+  targetSeconds?: never;
 }
 
 export interface PauseIntent extends PlaybackIntentBase {
   type: "pause";
+  targetSeconds?: never;
 }
 
 export interface SeekIntent extends PlaybackIntentBase {
