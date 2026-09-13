@@ -1,82 +1,77 @@
 {
   "version": 1,
   "project": "watch-together",
-  "gate": "D",
-  "title": "Progressive MP4 Media Contract and Native Player",
+  "gate": "F",
+  "title": "Shared Authoritative Timeline Core",
   "baseBranch": "main",
   "stopAfterPass": true,
-  "nextGate": "E",
+  "nextGate": "G",
   "allowedChangedPaths": [
-    "shared/watch/media.ts",
-    "client/watch/media-validation.ts",
-    "client/watch/media-validation.test.ts",
-    "client/components/watch/WatchMediaPlayer.tsx",
-    "client/pages/WatchTogether.tsx",
-    "client/App.tsx",
-    "public/watch-probe.vtt"
+    "shared/watch/types.ts",
+    "shared/watch/events.ts",
+    "shared/watch/constants.ts",
+    "shared/watch/timeline.ts",
+    "shared/watch/timeline.test.ts"
   ],
   "requiredChangedPaths": [
-    "shared/watch/media.ts",
-    "client/watch/media-validation.ts",
-    "client/watch/media-validation.test.ts",
-    "client/components/watch/WatchMediaPlayer.tsx",
-    "client/pages/WatchTogether.tsx",
-    "client/App.tsx",
-    "public/watch-probe.vtt"
+    "shared/watch/types.ts",
+    "shared/watch/events.ts",
+    "shared/watch/constants.ts",
+    "shared/watch/timeline.ts",
+    "shared/watch/timeline.test.ts"
   ],
   "requiredPresentPaths": [
     "shared/watch/media.ts",
-    "client/watch/media-validation.ts",
-    "client/components/watch/WatchMediaPlayer.tsx",
-    "client/pages/WatchTogether.tsx",
-    "public/watch-probe.vtt"
+    "shared/watch/types.ts",
+    "shared/watch/events.ts",
+    "shared/watch/constants.ts",
+    "shared/watch/timeline.ts",
+    "shared/watch/timeline.test.ts"
   ],
   "requiredContent": [
     {
-      "path": "shared/watch/media.ts",
+      "path": "shared/watch/types.ts",
       "contains": [
+        "RoomTimeline",
+        "roomEpoch",
+        "seq",
+        "participantId",
+        "clientId",
+        "userArmed",
+        "mediaReady",
         "assetId",
-        "assetVersion",
-        "durationMs",
-        "videoUrl",
-        "subtitles",
-        "MediaFingerprint"
+        "assetVersion"
       ]
     },
     {
-      "path": "client/watch/media-validation.ts",
+      "path": "shared/watch/events.ts",
       "contains": [
-        "validateLoadedMedia",
-        "duration"
+        "PlaybackIntent",
+        "cmdId",
+        "observedSeq",
+        "targetSeconds",
+        "WatchJoinPayload",
+        "WatchClockPayload"
       ]
     },
     {
-      "path": "client/components/watch/WatchMediaPlayer.tsx",
+      "path": "shared/watch/timeline.ts",
       "contains": [
-        "playsInline",
-        "<track",
-        "onLoadedMetadata"
+        "projectTimeline",
+        "Math.max(0",
+        "isIncomingTimelineNewer",
+        "roomEpoch",
+        "seq"
       ]
     },
     {
-      "path": "client/pages/WatchTogether.tsx",
+      "path": "shared/watch/timeline.test.ts",
       "contains": [
-        "WatchMediaPlayer",
-        "URLSearchParams",
-        "EXTERNAL VALIDATION"
-      ]
-    },
-    {
-      "path": "client/watch/media-validation.test.ts",
-      "contains": [
-        "duration",
-        "asset"
-      ]
-    },
-    {
-      "path": "client/App.tsx",
-      "contains": [
-        "/watch-together"
+        "future",
+        "paused",
+        "playing",
+        "epoch",
+        "sequence"
       ]
     }
   ],
@@ -86,17 +81,19 @@
     "pnpm build"
   ],
   "externalChecks": [
-    "EXTERNAL VALIDATION PENDING until one owner-supplied compatible progressive MP4 is delivered through the intended private media path and play/pause/seek/WebVTT are verified on iPhone Safari and the second real viewing device"
+    "Gate E real-device unsynchronized drift calibration remains EXTERNAL VALIDATION PENDING; Gate F may proceed, but no drift threshold becomes final until that experiment is completed"
   ],
   "instructions": [
-    "Implement only the V1 progressive-MP4 media contract, strict metadata validation, and a native HTML video probe page.",
-    "Do not add room state, Socket.IO room events, timeline synchronization, clock synchronization, chat, Redis, R2 credentials, upload/ingestion workers, HLS, DASH, or DRM.",
-    "Do not hardcode an external sample-movie dependency. The probe may accept a media URL and expected duration through query parameters so the real R2 asset can be tested later.",
-    "The media contract must include an immutable fingerprint using assetId, assetVersion, and expected duration, with optional byteLength/etag.",
-    "The player must use native progressive MP4 via HTMLVideoElement, playsInline, controls, and local WebVTT tracks.",
-    "loadedmetadata must validate actual duration against the expected fingerprint before declaring the asset valid.",
-    "Do not modify IPTV/live-TV code other than adding the isolated /watch-together route to client/App.tsx.",
+    "Implement only pure shared synchronization protocol/types and timeline math. No server room store, Socket.IO handlers, browser player control, clock estimator, chat, persistence, or UI changes.",
+    "The timeline must be server-authoritative and project from an anchor media time plus elapsed server time only when playing.",
+    "Future stampedAtServerMs values must never project backwards: elapsed time must clamp at zero.",
+    "Timeline ordering must compare roomEpoch first, then seq, and equal versions are stale/duplicate rather than new.",
+    "Participant identity must use participantId/clientId/socket identity separation; do not reintroduce a fake account userId.",
+    "Readiness must remain split into userArmed and mediaReady.",
+    "Playback intents must be discriminated unions; seek requires targetSeconds while play/pause do not.",
+    "Playback intents must fence to movieId + assetId + assetVersion + roomEpoch and include cmdId + observedSeq.",
+    "Do not choose or encode final drift-correction thresholds in this gate. Gate E calibration is still pending.",
     "A task is not complete until pnpm watch:gate exits 0 and the GitHub Watch Together Gate is green.",
-    "After deterministic Gate D passes, stop. Do not begin Gate E synchronization calibration or Gate F sync-core work in the same branch."
+    "After Gate F passes, stop. Do not begin Gate G room-store work in the same branch."
   ]
 }
