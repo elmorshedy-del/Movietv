@@ -4,16 +4,27 @@ This is the canonical entry point for engineers and AI agents.
 
 Read in this order:
 
-1. `docs/WATCH_TOGETHER_TECHNICAL_SPEC.md` — current architecture and the full Original → Revised → Why decision history.
-2. `docs/WATCH_TOGETHER_V1_AUDIT_RECONCILIATION.md` — current Codex continuation plan, retroactive work, revised gates, and exact next task.
-3. `docs/WATCH_TOGETHER_V1_BUILD_BLUEPRINT.md` — original V1 blueprint, preserved as design history and detailed reference where not superseded.
+1. `docs/WATCH_TOGETHER_CODEX_HANDOFF.md` — mandatory execution/completion rules.
+2. `docs/WATCH_TOGETHER_TECHNICAL_SPEC.md` — current architecture and Original → Revised → Why decision history.
+3. `docs/WATCH_TOGETHER_V1_AUDIT_RECONCILIATION.md` — current continuation plan, retroactive work, revised gates, and implementation sequence.
+4. `docs/WATCH_TOGETHER_V1_BUILD_BLUEPRINT.md` — original V1 blueprint, preserved as historical/supporting detail where not superseded.
+
+The active implementation gate is defined by the **base-branch** copy of:
+
+```text
+.codex/watch-gate.json
+```
 
 Where documents conflict:
 
 ```text
+CODEX_HANDOFF.md
++ base-branch .codex/watch-gate.json
+    control execution/completion.
+
 TECHNICAL_SPEC.md
 + V1_AUDIT_RECONCILIATION.md
-    win.
+    control current architecture/sequence.
 
 V1_BUILD_BLUEPRINT.md
     remains historical/supporting detail.
@@ -21,14 +32,27 @@ V1_BUILD_BLUEPRINT.md
 
 The existing IPTV/KoraZero system is not a dependency of movie Watch Together. External IPTV reachability failures in Codex/CI are non-blocking unless a local code change caused a regression.
 
-## Current next task
+## Mandatory completion command
 
-Start **Gate B** in `WATCH_TOGETHER_V1_AUDIT_RECONCILIATION.md`:
+For every Watch Together implementation gate:
 
-- add `tsconfig.watch.json` with strict Watch Together type checking;
-- wire it into the package verification scripts;
-- run `pnpm typecheck`, `pnpm test`, and `pnpm build`;
-- report exact changes/results;
-- stop before Gate C.
+```bash
+git fetch origin main
+pnpm watch:gate
+```
 
-Do not investigate the KoraZero 403/502 as part of Gate B.
+A task is **not complete** until that command exits `0` after all changes and the PR's `Watch Together Gate` check is green.
+
+If the command fails, fix the failure within the active gate and rerun it. Do not stop with a completion report while it is red.
+
+After a gate passes, **stop**. Do not prepare or begin the next gate in the same task.
+
+## Current gate
+
+The active base-branch manifest currently specifies:
+
+```text
+Gate B — Strict Watch Together Type Boundary
+```
+
+Use the manifest's exact file allowlist. Do not investigate the KoraZero 403/502 as part of Gate B.
