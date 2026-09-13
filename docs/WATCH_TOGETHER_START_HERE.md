@@ -52,9 +52,11 @@ After a gate passes, **stop**. Do not prepare or begin the next gate in the same
 The active base-branch manifest currently specifies:
 
 ```text
-Gate D — Progressive MP4 Media Contract and Native Player
+Gate F — Shared Authoritative Timeline Core
 ```
 
-Gate C's deterministic transport spike is merged. Its real Railway + iPhone cellular soak remains an external validation item; that does not authorize Gate D to change the realtime transport.
+Gate D's deterministic progressive-MP4 media contract/player work is merged.
 
-Gate D is intentionally limited to the progressive-MP4 media contract, metadata/fingerprint validation, native `<video>` playback, a WebVTT track, and an isolated `/watch-together` media probe route. Do not start rooms or synchronization yet.
+Gate E is a real-device calibration experiment rather than a repository-code gate. It remains `EXTERNAL VALIDATION PENDING`. Per the reconciled architecture, that does **not** block building the pure shared sync core, but no drift threshold may be treated as final until Gate E is actually performed.
+
+Gate F is intentionally pure and shared: types, event payloads, timeline projection/order math, and tests only. Do not create room storage, Socket.IO handlers, clock-estimator code, player sync control, chat, persistence, or UI in this gate.
