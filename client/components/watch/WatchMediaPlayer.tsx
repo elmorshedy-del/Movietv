@@ -10,6 +10,28 @@ interface WatchMediaPlayerProps {
   onValidationChange?: (result: MediaValidationResult | null) => void;
 }
 
+function describeValidation(validation: MediaValidationResult | null): string {
+  if (validation === null) {
+    return "Waiting for loadedmetadata validation";
+  }
+
+  if (validation.ok === true) {
+    return `Asset validated (${validation.differenceMs} ms duration difference)`;
+  }
+
+  return `Asset validation failed: ${validation.message}`;
+}
+
+function validationClassName(validation: MediaValidationResult | null): string {
+  if (validation === null) {
+    return "border-white/10 bg-white/5 text-white/70";
+  }
+
+  return validation.ok === true
+    ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
+    : "border-red-400/30 bg-red-400/10 text-red-100";
+}
+
 export default function WatchMediaPlayer({
   movie,
   onValidationChange,
@@ -35,7 +57,7 @@ export default function WatchMediaPlayer({
     setValidation(result);
     onValidationChange?.(result);
 
-    if (!result.ok) {
+    if (result.ok === false) {
       event.currentTarget.pause();
     }
   }
@@ -45,12 +67,6 @@ export default function WatchMediaPlayer({
       "The browser could not load this media URL. Check that the MP4 is reachable and supports byte-range playback.",
     );
   }
-
-  const validationText = validation
-    ? validation.ok
-      ? `Asset validated (${validation.differenceMs} ms duration difference)`
-      : `Asset validation failed: ${validation.message}`
-    : "Waiting for loadedmetadata validation";
 
   return (
     <section className="space-y-3">
@@ -82,15 +98,9 @@ export default function WatchMediaPlayer({
 
       <div
         role="status"
-        className={`rounded-xl border px-4 py-3 text-sm ${
-          validation?.ok
-            ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
-            : validation && !validation.ok
-              ? "border-red-400/30 bg-red-400/10 text-red-100"
-              : "border-white/10 bg-white/5 text-white/70"
-        }`}
+        className={`rounded-xl border px-4 py-3 text-sm ${validationClassName(validation)}`}
       >
-        {validationText}
+        {describeValidation(validation)}
       </div>
 
       {mediaError ? (
