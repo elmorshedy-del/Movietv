@@ -104,6 +104,57 @@ describe("RoomService", () => {
     expect(reconnect.room.participants).toHaveLength(2);
   });
 
+  it("marks a transport disconnect without freeing the logical participant slot", async () => {
+    let now = 1_000;
+    const { service } = deterministicService(() => now);
+    const room = await service.createRoom(testMovie());
+    const joined = await service.joinParticipant(room.roomId, {
+      clientId: "client-a",
+      displayName: "A",
+    });
+
+    now = 2_500;
+    const disconnected = await service.setParticipantConnected(
+      room.roomId,
+      "client-a",
+      false,
+    );
+
+    expect(disconnected.participants).toHaveLength(1);
+    expect(disconnected.participants[0]).toMatchObject({
+      participantId: joined.participant.participantId,
+      clientId: "client-a",
+      connected: false,
+      playbackState: "disconnected",
+      lastSeenAtMs: 2_500,
+    });
+  });
+
+  it("explicit leave removes the logical slot so a new client can join", async () => {
+    const { service } = deterministicService();
+    const room = await service.createRoom(testMovie());
+    await service.joinParticipant(room.roomId, {
+      clientId: "client-a",
+      displayName: "A",
+    });
+    await service.joinParticipant(room.roomId, {
+      clientId: "client-b",
+      displayName: "B",
+    });
+
+    const afterLeave = await service.removeParticipant(room.roomId, "client-a");
+    expect(afterLeave.participants.map((p) => p.clientId)).toEqual(["client-b"]);
+
+    const third = await service.joinParticipant(room.roomId, {
+      clientId: "client-c",
+      displayName: "C",
+    });
+    expect(third.room.participants.map((p) => p.clientId).sort()).toEqual([
+      "client-b",
+      "client-c",
+    ]);
+  });
+
   it("does not expose mutable stored room state to callers", async () => {
     const { service } = deterministicService();
     const created = await service.createRoom(testMovie());
