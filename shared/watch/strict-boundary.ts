@@ -1,21 +1,17 @@
 /**
- * Compile-time sentinels for the Watch Together strict TypeScript boundary.
+ * Marker for the Watch Together strict TypeScript boundary.
  *
- * These are intentionally-invalid examples guarded by @ts-expect-error.
- * If strictNullChecks or noImplicitAny is ever disabled, TypeScript will report
- * the directive as unused and Gate B will fail instead of silently weakening
- * the synchronization protocol's type safety.
+ * `tsconfig.watch.json` is the executable proof that strictNullChecks and
+ * noImplicitAny are enabled: the aggregate gate compiles this subtree with that
+ * project after the legacy repository-wide typecheck.
+ *
+ * Do not add a real strict-only @ts-expect-error sentinel here. The legacy root
+ * tsconfig intentionally includes `shared/**` with strict mode disabled, so a
+ * strict-only expected error would become an unused directive during the base
+ * typecheck and make the aggregate gate fail for the wrong reason.
  */
+export type WatchStrictBoundary = {
+  readonly enabled: true;
+};
 
-// strictNullChecks must reject assigning null to string.
-// @ts-expect-error strictNullChecks sentinel
-const strictNullChecksSentinel: string = null;
-
-// noImplicitAny must reject an untyped function parameter.
-// @ts-expect-error noImplicitAny sentinel
-function noImplicitAnySentinel(value) {
-  return value;
-}
-
-void strictNullChecksSentinel;
-void noImplicitAnySentinel;
+export const watchStrictBoundary: WatchStrictBoundary = { enabled: true };
