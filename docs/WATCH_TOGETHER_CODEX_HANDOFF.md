@@ -51,37 +51,42 @@ read failure
 
 Do not substitute individual commands for the aggregate gate command in final verification.
 
-## Completed gates
+## Completed deterministic gates
 
 ### Gate B — Strict Watch Together Type Boundary
 
 Complete and merged.
 
-Established:
-
-- strict Watch Together TypeScript project;
-- aggregate legacy + strict Watch Together typecheck;
-- gate-enforced scope verification;
-- green GitHub gate before merge.
-
 ### Gate C — Railway Realtime Transport Spike
 
-Deterministic code complete and merged.
+Deterministic code complete and merged. The actual Railway+iPhone cellular soak remains external/manual.
+
+### Gate D — Progressive MP4 Media Contract and Native Player
+
+Complete and merged.
 
 Established:
 
-- one shared Node HTTP server in production startup;
-- feature-flagged deployment-only native WebSocket probe;
-- deterministic connect/reconnect tests;
-- shutdown ordering that closes upgraded probe sockets before HTTP shutdown.
+- strict progressive-MP4 movie/media contract;
+- immutable media fingerprint fields;
+- browser metadata-duration validation;
+- native `playsInline` HTML video playback;
+- local WebVTT track support;
+- isolated `/watch-together` media probe route.
 
-Still external/manual:
+Real owner-supplied private-media validation on the two target devices remains external/manual.
+
+## Gate E — external calibration status
+
+Gate E is the unsynchronized real-device calibration experiment.
+
+It remains:
 
 ```text
-EXTERNAL VALIDATION PENDING — real Railway + iPhone cellular ~30-minute soak with one background/foreground cycle.
+EXTERNAL VALIDATION PENDING
 ```
 
-The native probe is not the permanent room transport. The canonical room transport remains Socket.IO.
+This does not block pure sync-core code. It **does** block declaring any drift threshold, correction band, or perceptual target final.
 
 ## Current gate
 
@@ -90,51 +95,55 @@ Read `.codex/watch-gate.json` from `origin/main`.
 The active gate is:
 
 ```text
-Gate D — Progressive MP4 Media Contract and Native Player
+Gate F — Shared Authoritative Timeline Core
 ```
 
 Purpose:
 
-> Prove the simplest V1 movie media contract and browser playback path before building rooms or synchronization.
+> Establish the strict shared protocol and deterministic timeline math that every later room/server/client implementation must consume.
 
-Gate D must establish:
+Gate F must establish only:
 
-- a strict shared progressive-MP4 media contract;
-- immutable media fingerprint fields (`assetId`, `assetVersion`, expected duration, optional byte length/ETag);
-- local WebVTT subtitle metadata;
-- a native HTML `<video>` player using `playsInline` and browser controls;
-- `loadedmetadata` duration validation before the asset is considered valid;
-- an isolated `/watch-together` probe page that accepts media parameters without hardcoding an external movie dependency;
-- deterministic unit tests around media validation.
+- participant/room/timeline shared types;
+- readiness split (`userArmed`, `mediaReady`);
+- playback intent discriminated unions;
+- immutable movie/asset fencing (`movieId`, `assetId`, `assetVersion`, `roomEpoch`);
+- command identity (`cmdId`) and observed sequence;
+- canonical timeline projection;
+- future-start clamp (`Math.max(0, serverNow - stampedAtServerMs)`);
+- timeline ordering by epoch then sequence;
+- unit tests for paused/playing/future timestamps/clamping/order behavior.
 
-Forbidden in Gate D:
+Forbidden in Gate F:
 
-- room state or participant models;
-- Socket.IO room events;
-- timeline or clock synchronization;
-- playback intent protocol;
+- room-store interfaces or in-memory rooms;
+- Express/Socket.IO handlers;
+- clock-estimator implementation;
+- browser player control;
+- buffering policy;
+- reconnect timers;
 - chat/reactions;
-- Redis/database work;
-- R2 secrets/credentials;
-- upload/FFmpeg/ingestion automation;
-- HLS/DASH/DRM;
-- IPTV/live-TV implementation changes.
+- persistence/database work;
+- drift thresholds or correction constants;
+- IPTV/live-TV changes.
 
-The probe may accept a media URL and expected duration through query parameters so the eventual private R2 asset can be tested without changing the player architecture.
+Playback intents must be discriminated unions: a seek has `targetSeconds`; play and pause do not.
 
-Real media validation remains external until an owner-supplied compatible movie is delivered through the intended private media path and verified on the two actual viewing devices.
+Equal `(roomEpoch, seq)` versions are duplicate/stale, not newer.
+
+Participant identity must use `participantId` + `clientId` (with socket identity remaining transport-level later). Do not invent an account `userId`.
 
 ## Do not prepare future gates
 
-During Gate D do not add:
+During Gate F do not add:
 
-- room/store interfaces;
-- authoritative timeline types;
-- clock estimator code;
-- sync-controller code;
-- Socket.IO production room transport;
-- buffering-together policy;
-- reconnect room logic.
+- `WatchRoomStore`;
+- room creation endpoints;
+- Socket.IO room transport;
+- NTP/clock sampling;
+- client sync controller;
+- barriers;
+- buffering/reconnect orchestration.
 
 Those belong to later gates.
 
