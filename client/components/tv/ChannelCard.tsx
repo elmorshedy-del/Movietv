@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { TvChannelSummary } from "@shared/tv";
@@ -68,10 +68,29 @@ function accentFor(channel: TvChannelSummary): string {
 }
 
 export default function ChannelCard({ channel }: { channel: TvChannelSummary }) {
-  const [iconFailed, setIconFailed] = useState(false);
+  const [logoIndex, setLogoIndex] = useState(0);
   const [photoFailed, setPhotoFailed] = useState(false);
   const quality = channel.quality !== "unknown" ? channel.quality.toUpperCase() : "LIVE";
-  const showIcon = Boolean(channel.icon) && !iconFailed;
+  const logoSources = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          [
+            ...(channel.logoSources || []),
+            channel.brandIcon || undefined,
+            channel.icon || undefined,
+          ].filter((value): value is string => Boolean(value)),
+        ),
+      ),
+    [channel.logoSources, channel.brandIcon, channel.icon],
+  );
+  const logoSignature = logoSources.join("|");
+
+  useEffect(() => {
+    setLogoIndex(0);
+  }, [channel.id, logoSignature]);
+
+  const activeLogo = logoSources[logoIndex] || null;
   const accent = accentFor(channel);
   const photos = photoSetFor(channel);
   const photo = photos[stableIndex(channel.id, photos.length)];
@@ -108,14 +127,16 @@ export default function ChannelCard({ channel }: { channel: TvChannelSummary }) 
       </span>
 
       <div className="absolute inset-x-3 top-[30px] z-[1] flex h-[58px] items-center justify-center overflow-hidden">
-        <div className="flex min-h-[42px] min-w-[94px] items-center justify-center rounded-[9px] border border-white/[0.1] bg-black/30 px-3 py-1.5 shadow-[0_7px_22px_rgba(0,0,0,.24)] backdrop-blur-md transition-[transform,background-color,border-color] duration-300 group-hover:scale-[1.035] group-hover:border-white/[0.16] group-hover:bg-black/38">
-          {showIcon ? (
+        <div className="flex min-h-[42px] min-w-[94px] items-center justify-center rounded-[10px] border border-white/[0.12] bg-black/32 px-3.5 py-2 shadow-[0_8px_26px_rgba(0,0,0,.28)] backdrop-blur-xl transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:scale-[1.035] group-hover:border-white/[0.2] group-hover:bg-black/42 group-hover:shadow-[0_10px_30px_rgba(0,0,0,.36)]">
+          {activeLogo ? (
             <img
-              src={channel.icon || ""}
+              src={activeLogo}
               alt={`${channel.label} logo`}
               loading="lazy"
-              className="max-h-[35px] max-w-[112px] object-contain drop-shadow-[0_3px_10px_rgba(0,0,0,.45)] transition-[transform,filter] duration-300 ease-out group-hover:scale-[1.04] group-hover:brightness-110"
-              onError={() => setIconFailed(true)}
+              decoding="async"
+              referrerPolicy="no-referrer"
+              className="max-h-[38px] max-w-[118px] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,.52)] transition-[transform,filter] duration-300 ease-out group-hover:scale-[1.045] group-hover:brightness-110"
+              onError={() => setLogoIndex((index) => index + 1)}
             />
           ) : (
             <ChannelWordmark channel={channel} />
