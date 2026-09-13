@@ -13,6 +13,7 @@ import Favorites from "./pages/Favorites";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Watch from "./pages/Watch";
+import WatchTogether from "./pages/WatchTogether";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/" element={<Page><Index /></Page>} />
           <Route path="/browse/:sectionId" element={<Page><Browse /></Page>} />
           <Route path="/watch/:channelId" element={<Page><Watch /></Page>} />
+          <Route path="/watch-together" element={<Page><WatchTogether /></Page>} />
           <Route path="/favorites" element={<Page><Favorites /></Page>} />
 
           {/* Compatibility redirects from the Builder prototype. */}
