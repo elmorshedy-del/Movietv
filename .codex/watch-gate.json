@@ -1,69 +1,82 @@
 {
   "version": 1,
   "project": "watch-together",
-  "gate": "G",
-  "title": "In-Memory Room Store and Room Service",
+  "gate": "H",
+  "title": "Socket.IO Room Lifecycle",
   "baseBranch": "main",
   "stopAfterPass": true,
-  "nextGate": "H",
+  "nextGate": "I",
   "allowedChangedPaths": [
-    "server/watch/room-store.ts",
-    "server/watch/in-memory-room-store.ts",
+    "package.json",
+    "pnpm-lock.yaml",
+    "server/node-build.ts",
+    "server/watch/socket.ts",
+    "server/watch/socket.test.ts",
     "server/watch/room-service.ts",
     "server/watch/room-service.test.ts"
   ],
   "requiredChangedPaths": [
-    "server/watch/room-store.ts",
-    "server/watch/in-memory-room-store.ts",
+    "package.json",
+    "pnpm-lock.yaml",
+    "server/node-build.ts",
+    "server/watch/socket.ts",
+    "server/watch/socket.test.ts",
     "server/watch/room-service.ts",
     "server/watch/room-service.test.ts"
   ],
   "requiredPresentPaths": [
-    "server/watch/room-store.ts",
-    "server/watch/in-memory-room-store.ts",
-    "server/watch/room-service.ts",
-    "server/watch/room-service.test.ts"
+    "server/http-server.ts",
+    "server/watch/socket.ts",
+    "server/watch/socket.test.ts",
+    "server/watch/room-service.ts"
   ],
   "requiredContent": [
     {
-      "path": "server/watch/room-store.ts",
+      "path": "package.json",
       "contains": [
-        "WatchRoomStore",
-        "StoredWatchRoom",
-        "createRoom",
-        "getRoom",
-        "updateRoom",
-        "hasProcessedCommand",
-        "markProcessedCommand"
+        "socket.io",
+        "socket.io-client"
       ]
     },
     {
-      "path": "server/watch/in-memory-room-store.ts",
+      "path": "server/watch/socket.ts",
       "contains": [
-        "InMemoryWatchRoomStore",
-        "Map",
-        "updateRoom"
+        "attachWatchSocketServer",
+        "closeWatchSocketServer",
+        "watch:join",
+        "watch:snapshot",
+        "watch:participants",
+        "watch:state-request",
+        "watch:clock",
+        "socket.id",
+        "clientId"
       ]
     },
     {
       "path": "server/watch/room-service.ts",
       "contains": [
-        "RoomService",
-        "RoomCapacityError",
-        "clientId",
-        "participantId",
-        "INITIAL_ROOM_EPOCH",
-        "INITIAL_TIMELINE_SEQ"
+        "setParticipantConnected",
+        "removeParticipant",
+        "clientId"
       ]
     },
     {
-      "path": "server/watch/room-service.test.ts",
+      "path": "server/node-build.ts",
       "contains": [
+        "attachWatchSocketServer",
+        "closeWatchSocketServer",
+        "InMemoryWatchRoomStore",
+        "RoomService"
+      ]
+    },
+    {
+      "path": "server/watch/socket.test.ts",
+      "contains": [
+        "watch:join",
+        "watch:snapshot",
+        "watch:clock-ack",
         "reconnect",
-        "capacity",
-        "participantId",
-        "roomEpoch",
-        "seq"
+        "participantId"
       ]
     }
   ],
@@ -73,18 +86,22 @@
     "pnpm build"
   ],
   "externalChecks": [
-    "Gate E real-device unsynchronized drift calibration remains EXTERNAL VALIDATION PENDING and does not block this store/service gate"
+    "Gate E real-device unsynchronized drift calibration remains EXTERNAL VALIDATION PENDING; Gate H does not finalize drift behavior"
   ],
   "instructions": [
-    "Implement only the room-store abstraction, single-process in-memory adapter, and room domain service. Do not add HTTP endpoints or Socket.IO handlers yet.",
-    "The service must resolve an existing participant by clientId before enforcing the two-person capacity limit, so a refresh/reconnect in a full room cannot be rejected as a third participant.",
-    "Room creation must initialize one paused authoritative timeline at media time zero using INITIAL_ROOM_EPOCH and INITIAL_TIMELINE_SEQ and fence it to the exact movie assetId/assetVersion.",
-    "Generate roomId and participantId with cryptographically strong server-side randomness; do not use counters or timestamps.",
-    "Keep persistence behind WatchRoomStore. No Redis or database implementation in this gate.",
-    "The in-memory adapter's updateRoom must make each updater application atomic within the single Node process and must not expose internal mutable room objects to callers.",
-    "Include short-lived processed-command storage in the store seam for later idempotency, but do not implement playback command handling in this gate.",
-    "Do not add disconnect-grace timers, socket identity, chat, clock sync, player sync, buffering policy, or UI changes.",
+    "Attach one production Socket.IO server to the existing shared Node HTTP server; do not open a second public port.",
+    "Keep same-origin defaults. Do not enable permissive CORS.",
+    "Implement only room transport lifecycle: join, explicit leave, state request, snapshot, participant broadcasts, clock request/ack, and transport disconnect marking. Do not implement play/pause/seek intents yet.",
+    "On join, RoomService must resolve stable clientId identity and return the existing participantId on reconnect. socket.id is transport identity only and must never become logical participant identity.",
+    "A transport disconnect marks the participant disconnected but preserves the participant slot. Do not add the later disconnect-grace timer or room-wide pause policy in this gate.",
+    "An explicit watch:leave removes the logical participant slot so another client can join.",
+    "watch:state-request returns the latest canonical snapshot; do not replay old playback events.",
+    "For watch:clock, capture receive/send timestamps with no await between them and echo the client's t0ClientMs.",
+    "Socket errors must be converted to watch:error payloads rather than escaping handlers.",
+    "Production shutdown must close the Socket.IO layer before the Gate C probe and HTTP server.",
+    "Do not add room creation HTTP endpoints, timeline command handling, clock estimation, scheduled starts, player sync control, buffering policy, chat, Redis, or UI changes.",
+    "Do not modify IPTV/live-TV implementation.",
     "A task is not complete until pnpm watch:gate exits 0 and the GitHub Watch Together Gate is green.",
-    "After Gate G passes, stop. Do not begin Gate H Socket.IO lifecycle work in the same branch."
+    "After Gate H passes, stop. Do not begin Gate I clock-estimator work in the same branch."
   ]
 }
