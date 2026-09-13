@@ -52,11 +52,9 @@ After a gate passes, **stop**. Do not prepare or begin the next gate in the same
 The active base-branch manifest currently specifies:
 
 ```text
-Gate C — Railway Realtime Transport Spike
+Gate D — Progressive MP4 Media Contract and Native Player
 ```
 
-Gate C is deliberately narrow: prove the production Node process can own a shared HTTP server and a feature-flagged realtime probe, with clean lifecycle handling, without creating rooms, movie state, sync logic, chat, or player code.
+Gate C's deterministic transport spike is merged. Its real Railway + iPhone cellular soak remains an external validation item; that does not authorize Gate D to change the realtime transport.
 
-The deployment probe may use a tiny native WebSocket handshake purely to validate the host. The permanent room transport remains Socket.IO per the technical architecture.
-
-Real Railway + iPhone cellular soak remains an external validation and must be reported as `EXTERNAL VALIDATION PENDING` until actually observed.
+Gate D is intentionally limited to the progressive-MP4 media contract, metadata/fingerprint validation, native `<video>` playback, a WebVTT track, and an isolated `/watch-together` media probe route. Do not start rooms or synchronization yet.
