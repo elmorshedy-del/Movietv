@@ -53,58 +53,88 @@ read failure
 
 Do not substitute individual commands for the aggregate gate command in the final verification.
 
+## Gate B result
+
+Gate B is complete and merged.
+
+It established:
+
+- a strict Watch Together TypeScript project;
+- repository typecheck wiring that runs both legacy/base and strict Watch Together checks;
+- deterministic scope enforcement through `pnpm watch:gate`;
+- a green GitHub `Watch Together Gate` check before merge.
+
+One lesson from Gate B is now explicit: do not use a strict-only `@ts-expect-error` probe in a file also compiled by the legacy non-strict root tsconfig. That makes the base compiler report an unused directive. The strict project itself plus gate-enforced compiler options are the proof boundary.
+
 ## Current gate
 
 Read `.codex/watch-gate.json` from `origin/main`.
 
-At the time this handoff was created the active gate is:
+The active gate is:
 
 ```text
-Gate B — Strict Watch Together Type Boundary
+Gate C — Railway Realtime Transport Spike
 ```
 
-The purpose is not merely to create a second tsconfig. It is to **prove** strict nullability and implicit-any protection are active for Watch Together code.
+Purpose:
 
-A valid strict sentinel should contain compile-time probes such as:
+> Prove that MovieTV's production Node runtime can own a shared HTTP server and a long-lived realtime connection with clean shutdown/reconnect behavior, without yet building rooms or synchronization logic.
 
-```ts
-const validNumber: number = 1;
-void validNumber;
+The implementation is deliberately narrow.
 
-// If strictNullChecks is accidentally disabled, this directive becomes unused
-// and TypeScript must fail the gate.
-// @ts-expect-error strictNullChecks must reject undefined as number
-const strictNullProbe: number = undefined;
-void strictNullProbe;
+Allowed concepts:
 
-// If noImplicitAny is accidentally disabled, this directive becomes unused
-// and TypeScript must fail the gate.
-// @ts-expect-error noImplicitAny must reject an untyped parameter
-function implicitAnyProbe(value) {
-  return value;
-}
-void implicitAnyProbe;
+- extracting a shared Node `http.Server` from production startup;
+- a feature-flagged deployment-only WebSocket probe;
+- a tiny same-origin probe page for manual Railway/iPhone validation;
+- deterministic local connect/reconnect tests;
+- graceful shutdown that closes probe sockets before the HTTP server.
+
+Forbidden in Gate C:
+
+- room state;
+- participant models;
+- playback timeline;
+- media/movie types;
+- chat;
+- Redis;
+- Socket.IO room implementation;
+- player UI;
+- IPTV/live-TV edits.
+
+The native WebSocket probe is **not** the permanent room transport. It exists only to validate the deployment/runtime risk without introducing production room semantics. The canonical production room transport remains Socket.IO per the technical architecture.
+
+The probe must be disabled by default and enabled only when:
+
+```text
+WATCH_TOGETHER_SOCKET_PROBE=1
 ```
 
-Use the actual gate manifest as the file allowlist.
+The real Railway + iPhone cellular 30-minute/background-foreground soak is an external gate. Until actually observed, the final report must state:
+
+```text
+EXTERNAL VALIDATION PENDING
+```
+
+Deterministic repository checks must still pass before the Gate C code is mergeable.
 
 ## Do not prepare future gates
 
-Examples of prohibited behavior during Gate B:
+Examples of prohibited behavior during Gate C:
 
-- creating `server/http-server.ts`;
-- changing `server/node-build.ts`;
-- adding Socket.IO;
-- adding room types;
+- creating room/store interfaces;
+- adding movie media contracts;
 - adding the movie player;
-- adding deployment probe code;
-- creating tests for future Gate C runtime work.
+- implementing clock synchronization;
+- adding playback intents or timeline state;
+- building chat/presence;
+- introducing Redis or durable room persistence.
 
 If future work seems obviously useful, mention it in the final report only. Do not implement it.
 
 ## Final report format
 
-A successful gate report must include:
+A successful deterministic gate report must include:
 
 ```text
 GATE: <letter/title>
@@ -119,7 +149,7 @@ NEXT GATE STARTED: NO
 EXTERNAL VALIDATION PENDING: <none or exact items>
 ```
 
-If the gate does not pass, the status is `BLOCKED` or `FAIL`, never `PASS`.
+If the deterministic gate does not pass, the status is `BLOCKED` or `FAIL`, never `PASS`.
 
 ## Review discipline
 
