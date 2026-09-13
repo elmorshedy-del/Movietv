@@ -1,6 +1,6 @@
 # Watch Together — Codex Execution Handoff
 
-This file defines how Codex must execute Watch Together work. It is intentionally stricter than the architecture documents.
+This file defines how Codex or any engineer must execute Watch Together work. It is intentionally stricter than the architecture documents.
 
 ## Completion rule
 
@@ -13,11 +13,11 @@ It is complete only when all of the following are true:
 3. `pnpm watch:gate` exits with code `0` on the task branch after all changes.
 4. The task branch is pushed.
 5. The GitHub `Watch Together Gate` check is green for the PR.
-6. Codex has not started, prepared, scaffolded, or modified files for the next gate.
+6. No next-gate preparation was added.
 
-If any deterministic local check fails, Codex must fix the failure and rerun the complete gate command. It must not stop with a summary that says the task is complete while the gate is red.
+If any deterministic local check fails, fix the failure and rerun the complete gate command. Do not stop with a completion summary while the gate is red.
 
-If an external/manual validation cannot be performed from Codex Cloud, report it as `EXTERNAL VALIDATION PENDING`; do not fake a pass. External/manual checks do not excuse failures in deterministic repo checks.
+If an external/manual validation cannot be performed from the coding environment, report it as `EXTERNAL VALIDATION PENDING`; do not fake a pass. External/manual checks do not excuse deterministic repository-check failures.
 
 ## Immutable gate source
 
@@ -29,9 +29,7 @@ The active gate is defined by the copy of:
 
 on the **base branch**, not by a modified copy on the task branch.
 
-Do not edit the gate file, the verifier, or the CI workflow from a Watch Together implementation task unless the user explicitly assigns a gate-governance task.
-
-The verifier intentionally reads the base-branch copy so an implementation task cannot widen its own scope.
+Do not edit the gate file, verifier, or CI workflow from a normal implementation branch unless the user explicitly assigns gate-governance work.
 
 ## Required command loop
 
@@ -51,20 +49,39 @@ read failure
 → repeat until exit 0
 ```
 
-Do not substitute individual commands for the aggregate gate command in the final verification.
+Do not substitute individual commands for the aggregate gate command in final verification.
 
-## Gate B result
+## Completed gates
 
-Gate B is complete and merged.
+### Gate B — Strict Watch Together Type Boundary
 
-It established:
+Complete and merged.
 
-- a strict Watch Together TypeScript project;
-- repository typecheck wiring that runs both legacy/base and strict Watch Together checks;
-- deterministic scope enforcement through `pnpm watch:gate`;
-- a green GitHub `Watch Together Gate` check before merge.
+Established:
 
-One lesson from Gate B is now explicit: do not use a strict-only `@ts-expect-error` probe in a file also compiled by the legacy non-strict root tsconfig. That makes the base compiler report an unused directive. The strict project itself plus gate-enforced compiler options are the proof boundary.
+- strict Watch Together TypeScript project;
+- aggregate legacy + strict Watch Together typecheck;
+- gate-enforced scope verification;
+- green GitHub gate before merge.
+
+### Gate C — Railway Realtime Transport Spike
+
+Deterministic code complete and merged.
+
+Established:
+
+- one shared Node HTTP server in production startup;
+- feature-flagged deployment-only native WebSocket probe;
+- deterministic connect/reconnect tests;
+- shutdown ordering that closes upgraded probe sockets before HTTP shutdown.
+
+Still external/manual:
+
+```text
+EXTERNAL VALIDATION PENDING — real Railway + iPhone cellular ~30-minute soak with one background/foreground cycle.
+```
+
+The native probe is not the permanent room transport. The canonical room transport remains Socket.IO.
 
 ## Current gate
 
@@ -73,64 +90,53 @@ Read `.codex/watch-gate.json` from `origin/main`.
 The active gate is:
 
 ```text
-Gate C — Railway Realtime Transport Spike
+Gate D — Progressive MP4 Media Contract and Native Player
 ```
 
 Purpose:
 
-> Prove that MovieTV's production Node runtime can own a shared HTTP server and a long-lived realtime connection with clean shutdown/reconnect behavior, without yet building rooms or synchronization logic.
+> Prove the simplest V1 movie media contract and browser playback path before building rooms or synchronization.
 
-The implementation is deliberately narrow.
+Gate D must establish:
 
-Allowed concepts:
+- a strict shared progressive-MP4 media contract;
+- immutable media fingerprint fields (`assetId`, `assetVersion`, expected duration, optional byte length/ETag);
+- local WebVTT subtitle metadata;
+- a native HTML `<video>` player using `playsInline` and browser controls;
+- `loadedmetadata` duration validation before the asset is considered valid;
+- an isolated `/watch-together` probe page that accepts media parameters without hardcoding an external movie dependency;
+- deterministic unit tests around media validation.
 
-- extracting a shared Node `http.Server` from production startup;
-- a feature-flagged deployment-only WebSocket probe;
-- a tiny same-origin probe page for manual Railway/iPhone validation;
-- deterministic local connect/reconnect tests;
-- graceful shutdown that closes probe sockets before the HTTP server.
+Forbidden in Gate D:
 
-Forbidden in Gate C:
+- room state or participant models;
+- Socket.IO room events;
+- timeline or clock synchronization;
+- playback intent protocol;
+- chat/reactions;
+- Redis/database work;
+- R2 secrets/credentials;
+- upload/FFmpeg/ingestion automation;
+- HLS/DASH/DRM;
+- IPTV/live-TV implementation changes.
 
-- room state;
-- participant models;
-- playback timeline;
-- media/movie types;
-- chat;
-- Redis;
-- Socket.IO room implementation;
-- player UI;
-- IPTV/live-TV edits.
+The probe may accept a media URL and expected duration through query parameters so the eventual private R2 asset can be tested without changing the player architecture.
 
-The native WebSocket probe is **not** the permanent room transport. It exists only to validate the deployment/runtime risk without introducing production room semantics. The canonical production room transport remains Socket.IO per the technical architecture.
-
-The probe must be disabled by default and enabled only when:
-
-```text
-WATCH_TOGETHER_SOCKET_PROBE=1
-```
-
-The real Railway + iPhone cellular 30-minute/background-foreground soak is an external gate. Until actually observed, the final report must state:
-
-```text
-EXTERNAL VALIDATION PENDING
-```
-
-Deterministic repository checks must still pass before the Gate C code is mergeable.
+Real media validation remains external until an owner-supplied compatible movie is delivered through the intended private media path and verified on the two actual viewing devices.
 
 ## Do not prepare future gates
 
-Examples of prohibited behavior during Gate C:
+During Gate D do not add:
 
-- creating room/store interfaces;
-- adding movie media contracts;
-- adding the movie player;
-- implementing clock synchronization;
-- adding playback intents or timeline state;
-- building chat/presence;
-- introducing Redis or durable room persistence.
+- room/store interfaces;
+- authoritative timeline types;
+- clock estimator code;
+- sync-controller code;
+- Socket.IO production room transport;
+- buffering-together policy;
+- reconnect room logic.
 
-If future work seems obviously useful, mention it in the final report only. Do not implement it.
+Those belong to later gates.
 
 ## Final report format
 
@@ -153,12 +159,12 @@ If the deterministic gate does not pass, the status is `BLOCKED` or `FAIL`, neve
 
 ## Review discipline
 
-A reviewer should reject a PR when any of these are true:
+Reject a PR when any of these are true:
 
 - files outside the gate allowlist changed;
 - required proof was replaced with a placeholder;
 - only a subset of required checks ran;
-- the PR includes next-gate preparation;
+- next-gate work appears;
 - external failures are misrepresented as local passes;
 - the CI gate is red or absent;
-- the final task report says complete despite any of the above.
+- the final report says complete despite any of the above.
