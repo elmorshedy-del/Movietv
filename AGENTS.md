@@ -1,164 +1,113 @@
-# Fusion Starter
+# MovieTV Agent Instructions
 
-A production-ready full-stack React application template with integrated Express server, featuring React Router 6 SPA mode, TypeScript, Vitest, Zod and modern tooling.
+These rules apply to Codex and any other coding agent working in this repository.
 
-While the starter comes with a express server, only create endpoint when strictly neccesary, for example to encapsulate logic that must leave in the server, such as private keys handling, or certain DB operations, db...
+## Watch Together — mandatory execution contract
 
-## Tech Stack
+For any Watch Together task, read these files before editing code:
 
-- **PNPM**: Prefer pnpm
-- **Frontend**: React 18 + React Router 6 (spa) + TypeScript + Vite + TailwindCSS 3
-- **Backend**: Express server integrated with Vite dev server
-- **Testing**: Vitest
-- **UI**: Radix UI + TailwindCSS 3 + Lucide React icons
+1. `docs/WATCH_TOGETHER_START_HERE.md`
+2. `docs/WATCH_TOGETHER_CODEX_HANDOFF.md`
+3. `docs/WATCH_TOGETHER_TECHNICAL_SPEC.md`
+4. `docs/WATCH_TOGETHER_V1_AUDIT_RECONCILIATION.md`
+5. `docs/WATCH_TOGETHER_V1_BUILD_BLUEPRINT.md` only as historical/supporting detail where not superseded.
 
-## Project Structure
+### Active gate is authoritative
 
-```
-client/                   # React SPA frontend
-├── pages/                # Route components (Index.tsx = home)
-├── components/ui/        # Pre-built UI component library
-├── App.tsx                # App entry point and with SPA routing setup
-└── global.css            # TailwindCSS 3 theming and global styles
+The active implementation gate is defined by the **base-branch** copy of:
 
-server/                   # Express API backend
-├── index.ts              # Main server setup (express config + routes)
-└── routes/               # API handlers
-
-shared/                   # Types used by both client & server
-└── api.ts                # Example of how to share api interfaces
+```text
+.codex/watch-gate.json
 ```
 
-## Key Features
+A Watch Together implementation task may change only the files permitted by that gate.
 
-## SPA Routing System
+Do not edit `.codex/watch-gate.json`, `scripts/verify-watch-gate.mjs`, or `.github/workflows/watch-together-gate.yml` from a normal implementation task unless the user explicitly assigns a gate-governance task.
 
-The routing system is powered by React Router 6:
+### No future-gate preparation
 
-- `client/pages/Index.tsx` represents the home page.
-- Routes are defined in `client/App.tsx` using the `react-router-dom` import
-- Route files are located in the `client/pages/` directory
+Do not prepare, scaffold, refactor for, or partially implement the next gate.
 
-For example, routes can be defined with:
+If the current gate is B, Gate C work is forbidden even if it appears obviously useful.
 
-```typescript
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+If future work is discovered, report it instead of implementing it.
 
-<Routes>
-  <Route path="/" element={<Index />} />
-  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-  <Route path="*" element={<NotFound />} />
-</Routes>;
-```
+### A task is not complete until the gate passes
 
-### Styling System
-
-- **Primary**: TailwindCSS 3 utility classes
-- **Theme and design tokens**: Configure in `client/global.css` 
-- **UI components**: Pre-built library in `client/components/ui/`
-- **Utility**: `cn()` function combines `clsx` + `tailwind-merge` for conditional classes
-
-```typescript
-// cn utility usage
-className={cn(
-  "base-classes",
-  { "conditional-class": condition },
-  props.className  // User overrides
-)}
-```
-
-### Express Server Integration
-
-- **Development**: Single port (8080) for both frontend/backend
-- **Hot reload**: Both client and server code
-- **API endpoints**: Prefixed with `/api/`
-
-#### Example API Routes
-- `GET /api/ping` - Simple ping api
-- `GET /api/demo` - Demo endpoint  
-
-### Shared Types
-Import consistent types in both client and server:
-```typescript
-import { DemoResponse } from '@shared/api';
-```
-
-Path aliases:
-- `@shared/*` - Shared folder
-- `@/*` - Client folder
-
-## Development Commands
+Before claiming a Watch Together task is complete, run:
 
 ```bash
-pnpm dev        # Start dev server (client + server)
-pnpm build      # Production build
-pnpm start      # Start production server
-pnpm typecheck  # TypeScript validation
-pnpm test          # Run Vitest tests
+git fetch origin main
+pnpm watch:gate
 ```
 
-## Adding Features
+If it fails, fix the failure within current-gate scope and rerun the **entire** command. Repeat until it exits `0`.
 
-### Add new colors to the theme
+Do not substitute a subset such as only `pnpm test`.
 
-Open `client/global.css` and `tailwind.config.ts` and add new tailwind colors.
+After pushing, the PR's `Watch Together Gate` GitHub check must also be green. A red or missing gate means the task is not complete.
 
-### New API Route
-1. **Optional**: Create a shared interface in `shared/api.ts`:
-```typescript
-export interface MyRouteResponse {
-  message: string;
-  // Add other response properties here
-}
+If an external/manual validation cannot run from the coding environment, report exactly `EXTERNAL VALIDATION PENDING`; never convert that into a pass. External limitations do not excuse deterministic repository-check failures.
+
+### Required final report
+
+Use this structure:
+
+```text
+GATE: <gate>
+STATUS: PASS | BLOCKED | FAIL
+COMMIT: <sha>
+CHANGED FILES:
+- ...
+
+pnpm watch:gate: PASS | FAIL
+GitHub Watch Together Gate: PASS | PENDING | FAIL
+NEXT GATE STARTED: NO
+EXTERNAL VALIDATION PENDING: <none or exact items>
 ```
 
-2. Create a new route handler in `server/routes/my-route.ts`:
-```typescript
-import { RequestHandler } from "express";
-import { MyRouteResponse } from "@shared/api"; // Optional: for type safety
+If `pnpm watch:gate` is not green, `STATUS` cannot be `PASS`.
 
-export const handleMyRoute: RequestHandler = (req, res) => {
-  const response: MyRouteResponse = {
-    message: 'Hello from my endpoint!'
-  };
-  res.json(response);
-};
+## Watch Together architecture invariants
+
+Unless the canonical technical spec explicitly changes them:
+
+- Movie Watch Together is separate from IPTV/KoraZero live TV.
+- Clients send playback intent; the server commits authoritative room truth.
+- The sender also follows the committed broadcast.
+- Reconnect reconciles from a snapshot rather than replaying stale playback events.
+- Stable client identity is separate from socket identity.
+- Couple Mode is a first-class two-person behavior.
+- Do not modify live-TV code to solve Codex/network sandbox reachability failures.
+
+## Repository stack
+
+- Package manager: pnpm
+- Frontend: React 18 + React Router 6 + TypeScript + Vite
+- Styling: Tailwind CSS 4 + Radix UI
+- Backend: Express 5
+- Testing: Vitest
+- Production Node runtime: Railway for the current MovieTV deployment path
+
+## Normal verification
+
+For ordinary repository work:
+
+```bash
+pnpm typecheck
+pnpm test
+pnpm build
 ```
 
-3. Register the route in `server/index.ts`:
-```typescript
-import { handleMyRoute } from "./routes/my-route";
+For Watch Together work, use `pnpm watch:gate` instead because it includes scope enforcement plus the required deterministic verification.
 
-// Add to the createServer function:
-app.get("/api/my-endpoint", handleMyRoute);
-```
+## General change discipline
 
-4. Use in React components with type safety:
-```typescript
-import { MyRouteResponse } from '@shared/api'; // Optional: for type safety
-
-const response = await fetch('/api/my-endpoint');
-const data: MyRouteResponse = await response.json();
-```
-
-### New Page Route
-1. Create component in `client/pages/MyPage.tsx`
-2. Add route in `client/App.tsx`:
-```typescript
-<Route path="/my-page" element={<MyPage />} />
-```
-
-## Production Deployment
-
-- **Standard**: `pnpm build`
-- **Binary**: Self-contained executables (Linux, macOS, Windows)
-- **Cloud Deployment**: Use either Netlify or Vercel via their MCP integrations for easy deployment. Both providers work well with this starter template.
-
-## Architecture Notes
-
-- Single-port development with Vite + Express integration
-- TypeScript throughout (client, server, shared)
-- Full hot reload for rapid development
-- Production-ready with multiple deployment options
-- Comprehensive UI component library included
-- Type-safe API communication via shared interfaces
+- Inspect current repository HEAD before editing.
+- Keep changes tight and reversible.
+- Do not claim a test/build/deployment passed unless it was actually run and observed.
+- Do not hardcode credentials, stream IDs, or secrets.
+- Keep server-only secrets out of Vite-exposed `VITE_*` variables.
+- Preserve existing live-TV behavior unless the task explicitly targets it.
+- Add React routes before the catch-all `*` route in `client/App.tsx`.
+- Shared client/server types belong under `shared/`.
