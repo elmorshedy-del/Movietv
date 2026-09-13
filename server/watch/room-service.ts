@@ -24,6 +24,13 @@ export class RoomCapacityError extends Error {
   }
 }
 
+export class ParticipantNotFoundError extends Error {
+  constructor(roomId: string, clientId: string) {
+    super(`Watch Together participant not found in ${roomId}: ${clientId}`);
+    this.name = "ParticipantNotFoundError";
+  }
+}
+
 export interface JoinParticipantInput {
   clientId: string;
   displayName: string;
@@ -215,5 +222,65 @@ export class RoomService {
       participant: joinedParticipant,
       reconnected,
     };
+  }
+
+  async setParticipantConnected(
+    roomId: string,
+    clientIdInput: string,
+    connected: boolean,
+  ): Promise<StoredWatchRoom> {
+    const clientId = clientIdInput.trim();
+    if (!clientId) throw new Error("clientId is required");
+
+    const now = this.nowMs();
+    let found = false;
+    const updatedRoom = await this.store.updateRoom(roomId, (room) => ({
+      ...room,
+      participants: room.participants.map((participant) => {
+        if (participant.clientId !== clientId) return participant;
+        found = true;
+        return {
+          ...participant,
+          connected,
+          lastSeenAtMs: now,
+          playbackState: connected
+            ? participant.playbackState
+            : "disconnected",
+        };
+      }),
+      updatedAtMs: now,
+    }));
+
+    if (!updatedRoom) throw new RoomNotFoundError(roomId);
+    if (!found) throw new ParticipantNotFoundError(roomId, clientId);
+    return updatedRoom;
+  }
+
+  async removeParticipant(
+    roomId: string,
+    clientIdInput: string,
+  ): Promise<StoredWatchRoom> {
+    const clientId = clientIdInput.trim();
+    if (!clientId) throw new Error("clientId is required");
+
+    const now = this.nowMs();
+    let found = false;
+    const updatedRoom = await this.store.updateRoom(roomId, (room) => {
+      const participants = room.participants.filter((participant) => {
+        if (participant.clientId !== clientId) return true;
+        found = true;
+        return false;
+      });
+
+      return {
+        ...room,
+        participants,
+        updatedAtMs: now,
+      };
+    });
+
+    if (!updatedRoom) throw new RoomNotFoundError(roomId);
+    if (!found) throw new ParticipantNotFoundError(roomId, clientId);
+    return updatedRoom;
   }
 }
