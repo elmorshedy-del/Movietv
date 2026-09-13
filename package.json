@@ -10,7 +10,9 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "watch:scope": "node scripts/verify-watch-gate.mjs",
+    "watch:gate": "pnpm watch:scope && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
