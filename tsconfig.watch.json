@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noEmit": true
+  },
+  "include": [
+    "shared/watch/**/*.ts",
+    "server/watch/**/*.ts",
+    "client/watch/**/*.ts",
+    "client/components/watch/**/*.tsx",
+    "client/pages/WatchTogether.tsx"
+  ]
+}

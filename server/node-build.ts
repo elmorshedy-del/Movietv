@@ -1,8 +1,10 @@
 import path from "node:path";
 import { createServer } from "./index";
 import * as express from "express";
+import { closeHttpServer, createHttpServer } from "./http-server";
 
 const app = createServer();
+const httpServer = createHttpServer(app);
 const port = process.env.PORT || 3000;
 
 // In production, serve the built SPA files.
@@ -15,23 +17,39 @@ app.use(express.static(distPath));
 // wildcard below includes the root path and keeps API misses as JSON instead
 // of accidentally returning the SPA shell.
 app.get("/{*splat}", (req, res) => {
-  if (req.path.startsWith("/api/") || req.path === "/api" || req.path.startsWith("/health")) {
+  if (
+    req.path.startsWith("/api/") ||
+    req.path === "/api" ||
+    req.path.startsWith("/health")
+  ) {
     return res.status(404).json({ error: "API endpoint not found" });
   }
 
   return res.sendFile(path.join(distPath, "index.html"));
 });
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`MovieTV server running on port ${port}`);
 });
 
-process.on("SIGTERM", () => {
-  console.log("Received SIGTERM, shutting down gracefully");
-  process.exit(0);
-});
+let shutdownStarted = false;
 
-process.on("SIGINT", () => {
-  console.log("Received SIGINT, shutting down gracefully");
-  process.exit(0);
-});
+async function shutdown(signal: NodeJS.Signals) {
+  if (shutdownStarted) {
+    return;
+  }
+
+  shutdownStarted = true;
+  console.log(`Received ${signal}, shutting down gracefully`);
+
+  try {
+    await closeHttpServer(httpServer);
+    process.exitCode = 0;
+  } catch (error) {
+    console.error("Failed to shut down gracefully", error);
+    process.exitCode = 1;
+  }
+}
+
+process.once("SIGTERM", () => void shutdown("SIGTERM"));
+process.once("SIGINT", () => void shutdown("SIGINT"));
