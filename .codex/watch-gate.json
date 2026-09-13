@@ -1,48 +1,58 @@
 {
   "version": 1,
   "project": "watch-together",
-  "gate": "B",
-  "title": "Strict Watch Together Type Boundary",
+  "gate": "C",
+  "title": "Railway Realtime Transport Spike",
   "baseBranch": "main",
   "stopAfterPass": true,
-  "nextGate": "C",
+  "nextGate": "D",
   "allowedChangedPaths": [
-    "package.json",
-    "tsconfig.watch.json",
-    "shared/watch/strict-boundary.ts"
+    "server/http-server.ts",
+    "server/node-build.ts",
+    "server/watch/socket-probe.ts",
+    "server/watch/socket-probe.test.ts"
   ],
   "requiredChangedPaths": [
-    "package.json",
-    "tsconfig.watch.json",
-    "shared/watch/strict-boundary.ts"
+    "server/http-server.ts",
+    "server/node-build.ts",
+    "server/watch/socket-probe.ts",
+    "server/watch/socket-probe.test.ts"
   ],
   "requiredPresentPaths": [
-    "tsconfig.watch.json",
-    "shared/watch/strict-boundary.ts"
+    "server/http-server.ts",
+    "server/watch/socket-probe.ts",
+    "server/watch/socket-probe.test.ts"
   ],
   "requiredContent": [
     {
-      "path": "tsconfig.watch.json",
+      "path": "server/http-server.ts",
       "contains": [
-        "\"strict\": true",
-        "\"strictNullChecks\": true",
-        "\"noImplicitAny\": true",
-        "\"noEmit\": true"
+        "createNodeHttpServer",
+        "closeHttpServer"
       ]
     },
     {
-      "path": "shared/watch/strict-boundary.ts",
+      "path": "server/watch/socket-probe.ts",
       "contains": [
-        "@ts-expect-error",
-        "strictNullChecks",
-        "noImplicitAny"
+        "WATCH_TOGETHER_SOCKET_PROBE",
+        "Sec-WebSocket-Accept",
+        "watch-probe-ready",
+        "attachWatchSocketProbe"
       ]
     },
     {
-      "path": "package.json",
+      "path": "server/node-build.ts",
       "contains": [
-        "typecheck:watch",
-        "tsconfig.watch.json"
+        "createHttpServer",
+        "attachWatchSocketProbe",
+        "closeWatchSocketProbe"
+      ]
+    },
+    {
+      "path": "server/watch/socket-probe.test.ts",
+      "contains": [
+        "new WebSocket",
+        "reconnect"
       ]
     }
   ],
@@ -51,13 +61,16 @@
     "pnpm test",
     "pnpm build"
   ],
-  "externalChecks": [],
+  "externalChecks": [
+    "EXTERNAL VALIDATION PENDING until the probe survives about 30 minutes on the real Railway deployment from an iPhone on cellular with one background/foreground cycle"
+  ],
   "instructions": [
-    "Do not modify files outside allowedChangedPaths.",
-    "Do not prepare Gate C or any future gate.",
-    "Do not edit this gate file from the task branch; the verifier reads the base-branch copy.",
+    "Implement only the deployment transport spike. Do not create room state, playback timeline, movie types, chat, or player code.",
+    "The probe may use a tiny native WebSocket handshake because it is deployment-only; production room realtime remains Socket.IO per the technical architecture.",
+    "The probe must be disabled by default and enabled only when WATCH_TOGETHER_SOCKET_PROBE=1.",
+    "Graceful shutdown must close probe sockets before closing the shared HTTP server.",
+    "Do not modify IPTV/live-TV code.",
     "A task is not complete until pnpm watch:gate exits 0.",
-    "If a deterministic check fails, fix it and rerun; do not report completion with a failing check.",
-    "After the gate passes, stop. Do not advance to nextGate in the same task."
+    "After the deterministic gate passes, stop. Do not advance to Gate D in the same task."
   ]
 }
