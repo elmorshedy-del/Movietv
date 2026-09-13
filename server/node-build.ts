@@ -2,6 +2,12 @@ import path from "node:path";
 import * as express from "express";
 import { createServer } from "./index";
 import { closeHttpServer, createHttpServer } from "./http-server";
+import { InMemoryWatchRoomStore } from "./watch/in-memory-room-store";
+import { RoomService } from "./watch/room-service";
+import {
+  attachWatchSocketServer,
+  closeWatchSocketServer,
+} from "./watch/socket";
 import {
   attachWatchSocketProbe,
   closeWatchSocketProbe,
@@ -21,6 +27,10 @@ if (probeEnabled) {
 }
 
 const httpServer = createHttpServer(app);
+const watchRoomStore = new InMemoryWatchRoomStore();
+const watchRoomService = new RoomService(watchRoomStore);
+const watchSocketServer = attachWatchSocketServer(httpServer, watchRoomService);
+
 if (probeEnabled) {
   attachWatchSocketProbe(httpServer);
 }
@@ -62,8 +72,10 @@ async function shutdown(signal: NodeJS.Signals): Promise<void> {
   console.log(`Received ${signal}, shutting down gracefully`);
 
   try {
-    // Upgraded WebSocket connections are not ordinary idle HTTP connections;
-    // close the realtime layer first so HTTP shutdown cannot hang on them.
+    // Close permanent realtime clients first, then the deployment-only probe,
+    // then the shared HTTP transport. Upgraded sockets must not outlive HTTP
+    // shutdown and Socket.IO must not own the public server's lifecycle.
+    await closeWatchSocketServer(watchSocketServer);
     await closeWatchSocketProbe(httpServer);
     await closeHttpServer(httpServer);
     process.exitCode = 0;
