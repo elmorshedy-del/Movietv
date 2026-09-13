@@ -1,58 +1,82 @@
 {
   "version": 1,
   "project": "watch-together",
-  "gate": "C",
-  "title": "Railway Realtime Transport Spike",
+  "gate": "D",
+  "title": "Progressive MP4 Media Contract and Native Player",
   "baseBranch": "main",
   "stopAfterPass": true,
-  "nextGate": "D",
+  "nextGate": "E",
   "allowedChangedPaths": [
-    "server/http-server.ts",
-    "server/node-build.ts",
-    "server/watch/socket-probe.ts",
-    "server/watch/socket-probe.test.ts"
+    "shared/watch/media.ts",
+    "client/watch/media-validation.ts",
+    "client/watch/media-validation.test.ts",
+    "client/components/watch/WatchMediaPlayer.tsx",
+    "client/pages/WatchTogether.tsx",
+    "client/App.tsx",
+    "public/watch-probe.vtt"
   ],
   "requiredChangedPaths": [
-    "server/http-server.ts",
-    "server/node-build.ts",
-    "server/watch/socket-probe.ts",
-    "server/watch/socket-probe.test.ts"
+    "shared/watch/media.ts",
+    "client/watch/media-validation.ts",
+    "client/watch/media-validation.test.ts",
+    "client/components/watch/WatchMediaPlayer.tsx",
+    "client/pages/WatchTogether.tsx",
+    "client/App.tsx",
+    "public/watch-probe.vtt"
   ],
   "requiredPresentPaths": [
-    "server/http-server.ts",
-    "server/watch/socket-probe.ts",
-    "server/watch/socket-probe.test.ts"
+    "shared/watch/media.ts",
+    "client/watch/media-validation.ts",
+    "client/components/watch/WatchMediaPlayer.tsx",
+    "client/pages/WatchTogether.tsx",
+    "public/watch-probe.vtt"
   ],
   "requiredContent": [
     {
-      "path": "server/http-server.ts",
+      "path": "shared/watch/media.ts",
       "contains": [
-        "createNodeHttpServer",
-        "closeHttpServer"
+        "assetId",
+        "assetVersion",
+        "durationMs",
+        "videoUrl",
+        "subtitles",
+        "MediaFingerprint"
       ]
     },
     {
-      "path": "server/watch/socket-probe.ts",
+      "path": "client/watch/media-validation.ts",
       "contains": [
-        "WATCH_TOGETHER_SOCKET_PROBE",
-        "Sec-WebSocket-Accept",
-        "watch-probe-ready",
-        "attachWatchSocketProbe"
+        "validateLoadedMedia",
+        "duration"
       ]
     },
     {
-      "path": "server/node-build.ts",
+      "path": "client/components/watch/WatchMediaPlayer.tsx",
       "contains": [
-        "createHttpServer",
-        "attachWatchSocketProbe",
-        "closeWatchSocketProbe"
+        "playsInline",
+        "<track",
+        "onLoadedMetadata"
       ]
     },
     {
-      "path": "server/watch/socket-probe.test.ts",
+      "path": "client/pages/WatchTogether.tsx",
       "contains": [
-        "new WebSocket",
-        "reconnect"
+        "WatchMediaPlayer",
+        "URLSearchParams",
+        "EXTERNAL VALIDATION"
+      ]
+    },
+    {
+      "path": "client/watch/media-validation.test.ts",
+      "contains": [
+        "duration",
+        "asset"
+      ]
+    },
+    {
+      "path": "client/App.tsx",
+      "contains": [
+        "/watch-together"
       ]
     }
   ],
@@ -62,15 +86,17 @@
     "pnpm build"
   ],
   "externalChecks": [
-    "EXTERNAL VALIDATION PENDING until the probe survives about 30 minutes on the real Railway deployment from an iPhone on cellular with one background/foreground cycle"
+    "EXTERNAL VALIDATION PENDING until one owner-supplied compatible progressive MP4 is delivered through the intended private media path and play/pause/seek/WebVTT are verified on iPhone Safari and the second real viewing device"
   ],
   "instructions": [
-    "Implement only the deployment transport spike. Do not create room state, playback timeline, movie types, chat, or player code.",
-    "The probe may use a tiny native WebSocket handshake because it is deployment-only; production room realtime remains Socket.IO per the technical architecture.",
-    "The probe must be disabled by default and enabled only when WATCH_TOGETHER_SOCKET_PROBE=1.",
-    "Graceful shutdown must close probe sockets before closing the shared HTTP server.",
-    "Do not modify IPTV/live-TV code.",
-    "A task is not complete until pnpm watch:gate exits 0.",
-    "After the deterministic gate passes, stop. Do not advance to Gate D in the same task."
+    "Implement only the V1 progressive-MP4 media contract, strict metadata validation, and a native HTML video probe page.",
+    "Do not add room state, Socket.IO room events, timeline synchronization, clock synchronization, chat, Redis, R2 credentials, upload/ingestion workers, HLS, DASH, or DRM.",
+    "Do not hardcode an external sample-movie dependency. The probe may accept a media URL and expected duration through query parameters so the real R2 asset can be tested later.",
+    "The media contract must include an immutable fingerprint using assetId, assetVersion, and expected duration, with optional byteLength/etag.",
+    "The player must use native progressive MP4 via HTMLVideoElement, playsInline, controls, and local WebVTT tracks.",
+    "loadedmetadata must validate actual duration against the expected fingerprint before declaring the asset valid.",
+    "Do not modify IPTV/live-TV code other than adding the isolated /watch-together route to client/App.tsx.",
+    "A task is not complete until pnpm watch:gate exits 0 and the GitHub Watch Together Gate is green.",
+    "After deterministic Gate D passes, stop. Do not begin Gate E synchronization calibration or Gate F sync-core work in the same branch."
   ]
 }
