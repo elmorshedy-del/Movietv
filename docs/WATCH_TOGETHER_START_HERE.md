@@ -43,20 +43,14 @@ pnpm watch:gate
 
 A task is **not complete** until that command exits `0` after all changes and the PR's `Watch Together Gate` check is green.
 
-If the command fails, fix the failure within the active gate and rerun it. Do not stop with a completion report while it is red.
-
-After a gate passes, **stop**. Do not prepare or begin the next gate in the same task.
+If the command fails, fix the failure within the active gate and rerun it. After a gate passes, stop; do not prepare the next gate in the same branch.
 
 ## Current gate
 
-The active base-branch manifest currently specifies:
-
 ```text
-Gate G — In-Memory Room Store and Room Service
+Gate H — Socket.IO Room Lifecycle
 ```
 
-Gate F's pure shared timeline/protocol core is merged.
+Gates B, C, D, F, and G are merged. Gate E remains an external real-device calibration and does not block this transport-lifecycle gate.
 
-Gate E remains `EXTERNAL VALIDATION PENDING`; it prevents final drift tuning but does not block domain/store construction.
-
-Gate G is intentionally server-domain-only: `WatchRoomStore`, its single-process in-memory adapter, room creation, participant join/rejoin/capacity logic, and deterministic tests. Do not add HTTP or Socket.IO room handlers yet.
+Gate H attaches the permanent Socket.IO room transport to the existing shared Railway HTTP server and implements only join/leave/snapshot/participants/state-request/clock transport lifecycle. Stable `clientId`/`participantId` identity must remain separate from `socket.id`. Playback commands, clock estimation, scheduled starts, player synchronization, buffering policy, and chat remain later gates.
