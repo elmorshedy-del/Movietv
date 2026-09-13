@@ -1,82 +1,49 @@
 {
   "version": 1,
   "project": "watch-together",
-  "gate": "H",
-  "title": "Socket.IO Room Lifecycle",
+  "gate": "I",
+  "title": "Client Clock Estimator",
   "baseBranch": "main",
   "stopAfterPass": true,
-  "nextGate": "I",
+  "nextGate": "J",
   "allowedChangedPaths": [
-    "package.json",
-    "pnpm-lock.yaml",
-    "server/node-build.ts",
-    "server/watch/socket.ts",
-    "server/watch/socket.test.ts",
-    "server/watch/room-service.ts",
-    "server/watch/room-service.test.ts"
+    "client/watch/clock.ts",
+    "client/watch/clock.test.ts"
   ],
   "requiredChangedPaths": [
-    "package.json",
-    "pnpm-lock.yaml",
-    "server/node-build.ts",
-    "server/watch/socket.ts",
-    "server/watch/socket.test.ts",
-    "server/watch/room-service.ts",
-    "server/watch/room-service.test.ts"
+    "client/watch/clock.ts",
+    "client/watch/clock.test.ts"
   ],
   "requiredPresentPaths": [
-    "server/http-server.ts",
-    "server/watch/socket.ts",
-    "server/watch/socket.test.ts",
-    "server/watch/room-service.ts"
+    "client/watch/clock.ts",
+    "client/watch/clock.test.ts"
   ],
   "requiredContent": [
     {
-      "path": "package.json",
+      "path": "client/watch/clock.ts",
       "contains": [
-        "socket.io",
-        "socket.io-client"
+        "ClockEstimator",
+        "t0ClientMs",
+        "t1ServerReceiveMs",
+        "t2ServerSendMs",
+        "t3ClientReceiveMs",
+        "roundTripMs",
+        "offsetMs",
+        "LOW_RTT_SAMPLE_COUNT",
+        "MAX_SAMPLES",
+        "MAX_OFFSET_SLEW_MS_PER_SECOND",
+        "serverNowMs"
       ]
     },
     {
-      "path": "server/watch/socket.ts",
+      "path": "client/watch/clock.test.ts",
       "contains": [
-        "attachWatchSocketServer",
-        "closeWatchSocketServer",
-        "watch:join",
-        "watch:snapshot",
-        "watch:participants",
-        "watch:state-request",
-        "watch:clock",
-        "socket.id",
-        "clientId"
-      ]
-    },
-    {
-      "path": "server/watch/room-service.ts",
-      "contains": [
-        "setParticipantConnected",
-        "removeParticipant",
-        "clientId"
-      ]
-    },
-    {
-      "path": "server/node-build.ts",
-      "contains": [
-        "attachWatchSocketServer",
-        "closeWatchSocketServer",
-        "InMemoryWatchRoomStore",
-        "RoomService"
-      ]
-    },
-    {
-      "path": "server/watch/socket.test.ts",
-      "contains": [
-        "watch:join",
-        "watch:snapshot",
-        "watch:clock-ack",
-        "reconnect",
-        "participantId"
+        "round-trip",
+        "offset",
+        "lowest RTT",
+        "slew",
+        "32",
+        "60"
       ]
     }
   ],
@@ -86,22 +53,18 @@
     "pnpm build"
   ],
   "externalChecks": [
-    "Gate E real-device unsynchronized drift calibration remains EXTERNAL VALIDATION PENDING; Gate H does not finalize drift behavior"
+    "Gate E real-device unsynchronized drift calibration remains EXTERNAL VALIDATION PENDING; clock estimation may be implemented, but perceptual drift/correction thresholds remain provisional"
   ],
   "instructions": [
-    "Attach one production Socket.IO server to the existing shared Node HTTP server; do not open a second public port.",
-    "Keep same-origin defaults. Do not enable permissive CORS.",
-    "Implement only room transport lifecycle: join, explicit leave, state request, snapshot, participant broadcasts, clock request/ack, and transport disconnect marking. Do not implement play/pause/seek intents yet.",
-    "On join, RoomService must resolve stable clientId identity and return the existing participantId on reconnect. socket.id is transport identity only and must never become logical participant identity.",
-    "A transport disconnect marks the participant disconnected but preserves the participant slot. Do not add the later disconnect-grace timer or room-wide pause policy in this gate.",
-    "An explicit watch:leave removes the logical participant slot so another client can join.",
-    "watch:state-request returns the latest canonical snapshot; do not replay old playback events.",
-    "For watch:clock, capture receive/send timestamps with no await between them and echo the client's t0ClientMs.",
-    "Socket errors must be converted to watch:error payloads rather than escaping handlers.",
-    "Production shutdown must close the Socket.IO layer before the Gate C probe and HTTP server.",
-    "Do not add room creation HTTP endpoints, timeline command handling, clock estimation, scheduled starts, player sync control, buffering policy, chat, Redis, or UI changes.",
-    "Do not modify IPTV/live-TV implementation.",
+    "Implement a pure client clock-estimation module only. Do not add Socket.IO client wiring, hooks, UI, room readiness, or playback control in this gate.",
+    "Use the four-timestamp NTP-style formulas: RTT=(t3-t0)-(t2-t1), offset=((t1-t0)+(t2-t3))/2.",
+    "Reject invalid/non-finite timestamp exchanges, server-send-before-server-receive, client-receive-before-client-send, and negative computed RTT.",
+    "Retain at most the latest 32 valid samples.",
+    "For target offset, use recent samples from the last 60 seconds, select up to the 5 lowest-RTT samples, then take the median offset.",
+    "The first usable estimate may initialize the active offset directly. Subsequent target changes must slew rather than step during normal operation, initially capped around 1 ms of offset change per second of client time.",
+    "Expose serverNowMs(clientNowMs) and diagnostics suitable for the later debug overlay.",
+    "Do not encode final drift-correction bands or playback-rate behavior in this gate.",
     "A task is not complete until pnpm watch:gate exits 0 and the GitHub Watch Together Gate is green.",
-    "After Gate H passes, stop. Do not begin Gate I clock-estimator work in the same branch."
+    "After Gate I passes, stop. Do not begin Gate J readiness/start-barrier work in the same branch."
   ]
 }
