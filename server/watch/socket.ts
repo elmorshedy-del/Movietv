@@ -287,8 +287,6 @@ export function attachWatchSocketServer(
 
 export async function closeWatchSocketServer(io: WatchSocketServer): Promise<void> {
   io.disconnectSockets(true);
-  await new Promise<void>((resolve) => {
-    io.engine.close(() => resolve());
-  });
+  io.engine.close();
   io.removeAllListeners();
 }
