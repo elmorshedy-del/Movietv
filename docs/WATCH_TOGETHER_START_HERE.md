@@ -9,48 +9,25 @@ Read in this order:
 3. `docs/WATCH_TOGETHER_V1_AUDIT_RECONCILIATION.md` — current continuation plan, retroactive work, revised gates, and implementation sequence.
 4. `docs/WATCH_TOGETHER_V1_BUILD_BLUEPRINT.md` — original V1 blueprint, preserved as historical/supporting detail where not superseded.
 
-The active implementation gate is defined by the **base-branch** copy of:
+The active implementation gate is defined by the **base-branch** `.codex/watch-gate.json`. Execution/completion follows that manifest and `docs/WATCH_TOGETHER_CODEX_HANDOFF.md`; architecture follows the technical spec and audit reconciliation.
 
-```text
-.codex/watch-gate.json
-```
-
-Where documents conflict:
-
-```text
-CODEX_HANDOFF.md
-+ base-branch .codex/watch-gate.json
-    control execution/completion.
-
-TECHNICAL_SPEC.md
-+ V1_AUDIT_RECONCILIATION.md
-    control current architecture/sequence.
-
-V1_BUILD_BLUEPRINT.md
-    remains historical/supporting detail.
-```
-
-The existing IPTV/KoraZero system is not a dependency of movie Watch Together. External IPTV reachability failures in Codex/CI are non-blocking unless a local code change caused a regression.
+The existing IPTV/KoraZero system is not a dependency of movie Watch Together. External IPTV reachability failures are non-blocking unless a local code change caused a regression.
 
 ## Mandatory completion command
-
-For every Watch Together implementation gate:
 
 ```bash
 git fetch origin main
 pnpm watch:gate
 ```
 
-A task is **not complete** until that command exits `0` after all changes and the PR's `Watch Together Gate` check is green.
-
-If the command fails, fix the failure within the active gate and rerun it. After a gate passes, stop; do not prepare the next gate in the same branch.
+A task is not complete until it exits `0` after all changes and the PR's `Watch Together Gate` check is green. After a gate passes, stop before the next gate.
 
 ## Current gate
 
 ```text
-Gate H — Socket.IO Room Lifecycle
+Gate I — Client Clock Estimator
 ```
 
-Gates B, C, D, F, and G are merged. Gate E remains an external real-device calibration and does not block this transport-lifecycle gate.
+Gates B, C, D, F, G, and H are merged. Gate E remains an external real-device calibration.
 
-Gate H attaches the permanent Socket.IO room transport to the existing shared Railway HTTP server and implements only join/leave/snapshot/participants/state-request/clock transport lifecycle. Stable `clientId`/`participantId` identity must remain separate from `socket.id`. Playback commands, clock estimation, scheduled starts, player synchronization, buffering policy, and chat remain later gates.
+Gate I is pure client clock math only: four-timestamp exchanges, recent low-RTT sample selection, median offset, bounded offset slew, `serverNowMs()`, diagnostics, and deterministic tests. Do not wire Socket.IO into the browser or implement playback readiness/synchronization yet.
