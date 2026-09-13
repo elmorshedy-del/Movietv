@@ -8,6 +8,8 @@ export interface TvChannelSummary {
   providerName?: string;
   categoryName?: string | null;
   icon?: string | null;
+  brandIcon?: string | null;
+  logoSources?: string[];
   available: boolean;
   quality: TvChannelQuality;
   codec: TvChannelCodec;
