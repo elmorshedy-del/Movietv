@@ -196,6 +196,10 @@ export function summarizeChannel(
     providerName: candidate?.name,
     categoryName: candidate?.categoryName ?? null,
     icon: candidate?.icon ?? null,
+    brandIcon: definition.brandIcon ?? null,
+    logoSources: Array.from(
+      new Set([...(definition.logoSources || []), candidate?.icon].filter((value): value is string => Boolean(value))),
+    ),
     available: Boolean(candidate),
     quality: candidate?.quality ?? "unknown",
     codec: candidate?.codec ?? "unknown",
