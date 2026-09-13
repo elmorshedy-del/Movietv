@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "project": "watch-together",
+  "gate": "B",
+  "title": "Strict Watch Together Type Boundary",
+  "baseBranch": "main",
+  "stopAfterPass": true,
+  "nextGate": "C",
+  "allowedChangedPaths": [
+    "package.json",
+    "tsconfig.watch.json",
+    "shared/watch/strict-boundary.ts"
+  ],
+  "requiredChangedPaths": [
+    "package.json",
+    "tsconfig.watch.json",
+    "shared/watch/strict-boundary.ts"
+  ],
+  "requiredPresentPaths": [
+    "tsconfig.watch.json",
+    "shared/watch/strict-boundary.ts"
+  ],
+  "requiredContent": [
+    {
+      "path": "tsconfig.watch.json",
+      "contains": [
+        "\"strict\": true",
+        "\"strictNullChecks\": true",
+        "\"noImplicitAny\": true",
+        "\"noEmit\": true"
+      ]
+    },
+    {
+      "path": "shared/watch/strict-boundary.ts",
+      "contains": [
+        "@ts-expect-error",
+        "strictNullChecks",
+        "noImplicitAny"
+      ]
+    },
+    {
+      "path": "package.json",
+      "contains": [
+        "typecheck:watch",
+        "tsconfig.watch.json"
+      ]
+    }
+  ],
+  "requiredChecks": [
+    "pnpm typecheck",
+    "pnpm test",
+    "pnpm build"
+  ],
+  "externalChecks": [],
+  "instructions": [
+    "Do not modify files outside allowedChangedPaths.",
+    "Do not prepare Gate C or any future gate.",
+    "Do not edit this gate file from the task branch; the verifier reads the base-branch copy.",
+    "A task is not complete until pnpm watch:gate exits 0.",
+    "If a deterministic check fails, fix it and rerun; do not report completion with a failing check.",
+    "After the gate passes, stop. Do not advance to nextGate in the same task."
+  ]
+}
