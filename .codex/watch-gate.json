@@ -1,77 +1,69 @@
 {
   "version": 1,
   "project": "watch-together",
-  "gate": "F",
-  "title": "Shared Authoritative Timeline Core",
+  "gate": "G",
+  "title": "In-Memory Room Store and Room Service",
   "baseBranch": "main",
   "stopAfterPass": true,
-  "nextGate": "G",
+  "nextGate": "H",
   "allowedChangedPaths": [
-    "shared/watch/types.ts",
-    "shared/watch/events.ts",
-    "shared/watch/constants.ts",
-    "shared/watch/timeline.ts",
-    "shared/watch/timeline.test.ts"
+    "server/watch/room-store.ts",
+    "server/watch/in-memory-room-store.ts",
+    "server/watch/room-service.ts",
+    "server/watch/room-service.test.ts"
   ],
   "requiredChangedPaths": [
-    "shared/watch/types.ts",
-    "shared/watch/events.ts",
-    "shared/watch/constants.ts",
-    "shared/watch/timeline.ts",
-    "shared/watch/timeline.test.ts"
+    "server/watch/room-store.ts",
+    "server/watch/in-memory-room-store.ts",
+    "server/watch/room-service.ts",
+    "server/watch/room-service.test.ts"
   ],
   "requiredPresentPaths": [
-    "shared/watch/media.ts",
-    "shared/watch/types.ts",
-    "shared/watch/events.ts",
-    "shared/watch/constants.ts",
-    "shared/watch/timeline.ts",
-    "shared/watch/timeline.test.ts"
+    "server/watch/room-store.ts",
+    "server/watch/in-memory-room-store.ts",
+    "server/watch/room-service.ts",
+    "server/watch/room-service.test.ts"
   ],
   "requiredContent": [
     {
-      "path": "shared/watch/types.ts",
+      "path": "server/watch/room-store.ts",
       "contains": [
-        "RoomTimeline",
-        "roomEpoch",
-        "seq",
-        "participantId",
+        "WatchRoomStore",
+        "StoredWatchRoom",
+        "createRoom",
+        "getRoom",
+        "updateRoom",
+        "hasProcessedCommand",
+        "markProcessedCommand"
+      ]
+    },
+    {
+      "path": "server/watch/in-memory-room-store.ts",
+      "contains": [
+        "InMemoryWatchRoomStore",
+        "Map",
+        "updateRoom"
+      ]
+    },
+    {
+      "path": "server/watch/room-service.ts",
+      "contains": [
+        "RoomService",
+        "RoomCapacityError",
         "clientId",
-        "userArmed",
-        "mediaReady",
-        "assetId",
-        "assetVersion"
+        "participantId",
+        "INITIAL_ROOM_EPOCH",
+        "INITIAL_TIMELINE_SEQ"
       ]
     },
     {
-      "path": "shared/watch/events.ts",
+      "path": "server/watch/room-service.test.ts",
       "contains": [
-        "PlaybackIntent",
-        "cmdId",
-        "observedSeq",
-        "targetSeconds",
-        "WatchJoinPayload",
-        "WatchClockPayload"
-      ]
-    },
-    {
-      "path": "shared/watch/timeline.ts",
-      "contains": [
-        "projectTimeline",
-        "Math.max(0",
-        "isIncomingTimelineNewer",
+        "reconnect",
+        "capacity",
+        "participantId",
         "roomEpoch",
         "seq"
-      ]
-    },
-    {
-      "path": "shared/watch/timeline.test.ts",
-      "contains": [
-        "future",
-        "paused",
-        "playing",
-        "epoch",
-        "sequence"
       ]
     }
   ],
@@ -81,19 +73,18 @@
     "pnpm build"
   ],
   "externalChecks": [
-    "Gate E real-device unsynchronized drift calibration remains EXTERNAL VALIDATION PENDING; Gate F may proceed, but no drift threshold becomes final until that experiment is completed"
+    "Gate E real-device unsynchronized drift calibration remains EXTERNAL VALIDATION PENDING and does not block this store/service gate"
   ],
   "instructions": [
-    "Implement only pure shared synchronization protocol/types and timeline math. No server room store, Socket.IO handlers, browser player control, clock estimator, chat, persistence, or UI changes.",
-    "The timeline must be server-authoritative and project from an anchor media time plus elapsed server time only when playing.",
-    "Future stampedAtServerMs values must never project backwards: elapsed time must clamp at zero.",
-    "Timeline ordering must compare roomEpoch first, then seq, and equal versions are stale/duplicate rather than new.",
-    "Participant identity must use participantId/clientId/socket identity separation; do not reintroduce a fake account userId.",
-    "Readiness must remain split into userArmed and mediaReady.",
-    "Playback intents must be discriminated unions; seek requires targetSeconds while play/pause do not.",
-    "Playback intents must fence to movieId + assetId + assetVersion + roomEpoch and include cmdId + observedSeq.",
-    "Do not choose or encode final drift-correction thresholds in this gate. Gate E calibration is still pending.",
+    "Implement only the room-store abstraction, single-process in-memory adapter, and room domain service. Do not add HTTP endpoints or Socket.IO handlers yet.",
+    "The service must resolve an existing participant by clientId before enforcing the two-person capacity limit, so a refresh/reconnect in a full room cannot be rejected as a third participant.",
+    "Room creation must initialize one paused authoritative timeline at media time zero using INITIAL_ROOM_EPOCH and INITIAL_TIMELINE_SEQ and fence it to the exact movie assetId/assetVersion.",
+    "Generate roomId and participantId with cryptographically strong server-side randomness; do not use counters or timestamps.",
+    "Keep persistence behind WatchRoomStore. No Redis or database implementation in this gate.",
+    "The in-memory adapter's updateRoom must make each updater application atomic within the single Node process and must not expose internal mutable room objects to callers.",
+    "Include short-lived processed-command storage in the store seam for later idempotency, but do not implement playback command handling in this gate.",
+    "Do not add disconnect-grace timers, socket identity, chat, clock sync, player sync, buffering policy, or UI changes.",
     "A task is not complete until pnpm watch:gate exits 0 and the GitHub Watch Together Gate is green.",
-    "After Gate F passes, stop. Do not begin Gate G room-store work in the same branch."
+    "After Gate G passes, stop. Do not begin Gate H Socket.IO lifecycle work in the same branch."
   ]
 }
