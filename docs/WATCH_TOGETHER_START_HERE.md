@@ -52,7 +52,11 @@ After a gate passes, **stop**. Do not prepare or begin the next gate in the same
 The active base-branch manifest currently specifies:
 
 ```text
-Gate B — Strict Watch Together Type Boundary
+Gate C — Railway Realtime Transport Spike
 ```
 
-Use the manifest's exact file allowlist. Do not investigate the KoraZero 403/502 as part of Gate B.
+Gate C is deliberately narrow: prove the production Node process can own a shared HTTP server and a feature-flagged realtime probe, with clean lifecycle handling, without creating rooms, movie state, sync logic, chat, or player code.
+
+The deployment probe may use a tiny native WebSocket handshake purely to validate the host. The permanent room transport remains Socket.IO per the technical architecture.
+
+Real Railway + iPhone cellular soak remains an external validation and must be reported as `EXTERNAL VALIDATION PENDING` until actually observed.
