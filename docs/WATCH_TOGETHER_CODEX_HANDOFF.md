@@ -53,40 +53,20 @@ Do not substitute individual commands for the aggregate gate command in final ve
 
 ## Completed deterministic gates
 
-### Gate B — Strict Watch Together Type Boundary
+- Gate B — strict Watch Together TypeScript boundary.
+- Gate C — shared production HTTP server + feature-flagged realtime transport spike.
+- Gate D — progressive MP4 media contract, fingerprint validation, native player, WebVTT probe.
+- Gate F — strict shared participant/timeline/event types, future-safe timeline projection, epoch/sequence ordering, asset fencing.
 
-Complete and merged.
+## External/manual gates still pending
 
-### Gate C — Railway Realtime Transport Spike
-
-Deterministic code complete and merged. The actual Railway+iPhone cellular soak remains external/manual.
-
-### Gate D — Progressive MP4 Media Contract and Native Player
-
-Complete and merged.
-
-Established:
-
-- strict progressive-MP4 movie/media contract;
-- immutable media fingerprint fields;
-- browser metadata-duration validation;
-- native `playsInline` HTML video playback;
-- local WebVTT track support;
-- isolated `/watch-together` media probe route.
-
-Real owner-supplied private-media validation on the two target devices remains external/manual.
-
-## Gate E — external calibration status
-
-Gate E is the unsynchronized real-device calibration experiment.
-
-It remains:
+Gate E — unsynchronized real-device drift calibration remains:
 
 ```text
 EXTERNAL VALIDATION PENDING
 ```
 
-This does not block pure sync-core code. It **does** block declaring any drift threshold, correction band, or perceptual target final.
+The Gate C Railway+iPhone cellular soak and Gate D owner-supplied private-media two-device validation also remain external/manual. None may be reported as passed until actually observed.
 
 ## Current gate
 
@@ -95,55 +75,57 @@ Read `.codex/watch-gate.json` from `origin/main`.
 The active gate is:
 
 ```text
-Gate F — Shared Authoritative Timeline Core
+Gate G — In-Memory Room Store and Room Service
 ```
 
 Purpose:
 
-> Establish the strict shared protocol and deterministic timeline math that every later room/server/client implementation must consume.
+> Establish the room-domain seam and correct two-person identity/capacity behavior before transport handlers exist.
 
-Gate F must establish only:
+Gate G must establish only:
 
-- participant/room/timeline shared types;
-- readiness split (`userArmed`, `mediaReady`);
-- playback intent discriminated unions;
-- immutable movie/asset fencing (`movieId`, `assetId`, `assetVersion`, `roomEpoch`);
-- command identity (`cmdId`) and observed sequence;
-- canonical timeline projection;
-- future-start clamp (`Math.max(0, serverNow - stampedAtServerMs)`);
-- timeline ordering by epoch then sequence;
-- unit tests for paused/playing/future timestamps/clamping/order behavior.
+- `WatchRoomStore` interface;
+- `StoredWatchRoom` domain shape;
+- single-process `InMemoryWatchRoomStore`;
+- safe clone boundaries so callers cannot mutate stored state behind the store;
+- room creation using the exact movie/media fingerprint and the canonical initial timeline;
+- secure random room/participant IDs;
+- participant join/rejoin logic;
+- reconnect-by-`clientId` **before** enforcing capacity;
+- max two logical participant slots;
+- processed-command TTL seam for later idempotency;
+- deterministic tests for creation, rejoin, capacity, identity preservation, and command TTL behavior.
 
-Forbidden in Gate F:
+Forbidden in Gate G:
 
-- room-store interfaces or in-memory rooms;
-- Express/Socket.IO handlers;
-- clock-estimator implementation;
-- browser player control;
-- buffering policy;
-- reconnect timers;
+- HTTP room-creation endpoints;
+- Socket.IO handlers;
+- socket IDs/disconnect timers;
+- clock estimator;
+- client sync controller;
+- seek barriers;
+- buffering-together policy;
 - chat/reactions;
-- persistence/database work;
-- drift thresholds or correction constants;
+- Redis/database adapters;
+- UI changes;
 - IPTV/live-TV changes.
 
-Playback intents must be discriminated unions: a seek has `targetSeconds`; play and pause do not.
+The store adapter is in-memory because V1 is one Railway process. Business logic must depend only on `WatchRoomStore` so persistence can change later without rewriting the room service.
 
-Equal `(roomEpoch, seq)` versions are duplicate/stale, not newer.
+`updateRoom` must apply its updater atomically inside the single process. The service must not perform a separate capacity read followed by a later write that allows two concurrent joins to bypass the limit.
 
-Participant identity must use `participantId` + `clientId` (with socket identity remaining transport-level later). Do not invent an account `userId`.
+A room that already has two participant slots must still permit either existing `clientId` to rejoin and preserve its `participantId`.
 
 ## Do not prepare future gates
 
-During Gate F do not add:
+During Gate G do not add:
 
-- `WatchRoomStore`;
-- room creation endpoints;
-- Socket.IO room transport;
-- NTP/clock sampling;
-- client sync controller;
-- barriers;
-- buffering/reconnect orchestration.
+- Socket.IO lifecycle code;
+- `/api/watch/rooms`;
+- clock messages;
+- scheduled start logic;
+- play/pause/seek handlers;
+- buffering/reconnect grace orchestration.
 
 Those belong to later gates.
 
