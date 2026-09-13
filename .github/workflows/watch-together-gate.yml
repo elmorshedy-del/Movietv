@@ -1,0 +1,27 @@
+name: Watch Together Gate
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  watch-gate:
+    if: startsWith(github.head_ref, 'codex/') || contains(github.event.pull_request.title, 'Watch Together') || contains(github.event.pull_request.body || '', 'Watch Together')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Enforce active Watch Together gate
+        env:
+          WATCH_GATE_BASE_REF: origin/${{ github.base_ref }}
+        run: pnpm watch:gate
