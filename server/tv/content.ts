@@ -1,4 +1,5 @@
 import type { TvCategoryCard, TvHeroContent } from "@shared/tv";
+import { getChannelLogoSources } from "./logos";
 
 /**
  * Editorial/product configuration lives here on purpose.
@@ -15,6 +16,8 @@ export interface ChannelDefinition {
   aliases: string[];
   exclude?: string[];
   categoryHints?: string[];
+  brandIcon?: string;
+  logoSources?: string[];
 }
 
 export interface ChannelRowDefinition {
@@ -48,7 +51,15 @@ function channel(
   aliases: string[],
   options: Omit<ChannelDefinition, "id" | "label" | "aliases"> = {},
 ): ChannelDefinition {
-  return { id, label, aliases, ...options };
+  const curatedLogoSources = getChannelLogoSources(id);
+  return {
+    id,
+    label,
+    aliases,
+    ...options,
+    brandIcon: options.brandIcon || curatedLogoSources[0],
+    logoSources: options.logoSources || curatedLogoSources,
+  };
 }
 
 export const CHANNELS: Record<string, ChannelDefinition> = {
@@ -90,7 +101,7 @@ export const CHANNELS: Record<string, ChannelDefinition> = {
   tnt: channel("tnt-us", "TNT", ["TNT HD [US]", "TNT [US]"]),
   usaNetwork: channel("usa-network", "USA Network", ["USA Network HD [US]", "USA Network [US]"]),
   freeform: channel("freeform-us", "Freeform", ["Freeform [US]", "Freeform HD [US]"]),
-  hallmark: channel("hallmark-us", "Hallmark", ["Hallmark [US]", "Hallmark Channel [US]"]),
+  hallmark: channel("hallmark-us", "Hallmark Channel", ["Hallmark [US]", "Hallmark Channel [US]"]),
   oxygen: channel("oxygen-us", "Oxygen", ["Oxygen [US]", "Oxygen HD [US]"]),
 
   osnWoman: channel("osn-woman", "OSN Woman", ["[Vip]OSN Woman HD", "OSN Woman HD", "OSN Woman"]),
@@ -98,7 +109,7 @@ export const CHANNELS: Record<string, ChannelDefinition> = {
   fashionTv: channel("fashion-tv", "Fashion TV", ["Fashion TV HD", "Fashion TV"]),
   hgtv: channel("hgtv", "HGTV", ["HGTV HD", "HGTV |UK|", "HGTV [US]"]),
   foodNetwork: channel("food-network", "Food Network", ["Food Network [US]", "Food Network [UK]", "Food Network"]),
-  fatafeat: channel("fatafeat", "FataFeat", ["beIN FataFeat", "FataFeat"]),
+  fatafeat: channel("fatafeat", "Fatafeat", ["beIN FataFeat", "FataFeat"]),
   cbcSofra: channel("cbc-sofra", "CBC Sofra", ["CBC Sofra [EG]", "CBC Sofra"]),
 
   bbcEarth: channel("bbc-earth", "BBC Earth", ["beIN_BBC Earth HD", "BBC Earth HD", "BBC Earth"]),
@@ -109,7 +120,7 @@ export const CHANNELS: Record<string, ChannelDefinition> = {
     { exclude: ["discovery science", "discovery id", "discovery family"] },
   ),
   discoveryScience: channel("discovery-science", "Discovery Science", ["[Vip]Osn_Discovery_Science_HD", "Discovery Science [US]"]),
-  discoveryId: channel("discovery-id", "Discovery ID", ["[Vip]OSN_Discovery ID_FHD", "Discovery ID [US]"]),
+  discoveryId: channel("discovery-id", "Investigation Discovery", ["[Vip]OSN_Discovery ID_FHD", "Discovery ID [US]", "Investigation Discovery [US]"]),
   natGeoWild: channel("nat-geo-wild", "Nat Geo Wild", ["[Vip]OSN_Nat Geo Wild_FHD", "Nat Geo Wild [US]"]),
   natGeo: channel(
     "nat-geo",
@@ -134,7 +145,7 @@ export const CHANNELS: Record<string, ChannelDefinition> = {
   attessia: channel("attessia", "Attessia", ["Attessia TV [TN]", "Attessia TV"]),
   nessma: channel("nessma", "Nessma", ["Nessma [TN]", "Nessma"]),
   hannibal: channel("hannibal", "Hannibal", ["HANNIBAL [TN]", "Hannibal [TN]", "HANNIBAL"]),
-  tunis1: channel("tunisia-national-1", "Tunisia National 1", ["Tunisia National 1 [TN]", "Tunisia National 1"]),
+  tunis1: channel("tunisia-national-1", "El Watania 1", ["Tunisia National 1 [TN]", "Tunisia National 1", "El Watania 1", "Watania 1"]),
 };
 
 export const HERO: TvHeroContent = {
