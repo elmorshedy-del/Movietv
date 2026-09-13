@@ -137,13 +137,17 @@ function asCatalogRows(payload: unknown): CatalogChannel[] {
     .filter((row): row is CatalogChannel => Boolean(row));
 }
 
-async function fetchJson(url: string, timeoutMs = REQUEST_TIMEOUT_MS) {
+async function fetchJson(
+  url: string,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+  extraHeaders: Record<string, string> = {},
+) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, {
       signal: controller.signal,
-      headers: { Accept: "application/json" },
+      headers: { Accept: "application/json", ...extraHeaders },
       cache: "no-store",
     });
     const body = await response.json().catch(() => ({}));
@@ -207,10 +211,13 @@ export function summarizeChannel(
 }
 
 export async function fetchPlayback(streamId: string) {
-  const url = new URL(`${upstreamOrigin()}/api/iptv-lab/live`);
+  const origin = upstreamOrigin();
+  const url = new URL(`${origin}/api/iptv-lab/live`);
   url.searchParams.set("stream", streamId);
   url.searchParams.set("limit", "1");
-  const payload = await fetchJson(url.toString());
+  const payload = await fetchJson(url.toString(), REQUEST_TIMEOUT_MS, {
+    Referer: `${origin}/watch.html`,
+  });
   const portals =
     payload && typeof payload === "object" && Array.isArray((payload as { portals?: unknown[] }).portals)
       ? (payload as { portals: unknown[] }).portals
@@ -224,8 +231,8 @@ export async function fetchPlayback(streamId: string) {
     const row = streams[0];
     if (!row || typeof row !== "object") continue;
     const record = row as Record<string, unknown>;
-    const playbackUrl = record.playbackUrl ? new URL(String(record.playbackUrl), upstreamOrigin()).toString() : null;
-    const tsPlaybackUrl = record.tsPlaybackUrl ? new URL(String(record.tsPlaybackUrl), upstreamOrigin()).toString() : null;
+    const playbackUrl = record.playbackUrl ? new URL(String(record.playbackUrl), origin).toString() : null;
+    const tsPlaybackUrl = record.tsPlaybackUrl ? new URL(String(record.tsPlaybackUrl), origin).toString() : null;
     if (playbackUrl || tsPlaybackUrl) return { playbackUrl, tsPlaybackUrl };
   }
 
